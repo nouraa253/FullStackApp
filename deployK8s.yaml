@@ -1,0 +1,37 @@
+---
+- import_playbook: ../kubernetes/mysql/deployDB.yaml
+
+- name: Deploy fullstack app to Kubernetes
+  hosts: localhost
+  connection: local
+
+  tasks:
+    - name: Deploy backend
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ kube_namespace }}"
+        definition: "{{ lookup('template', '../kubernetes/backend/deployment.yaml') | from_yaml }}"
+
+    - name: Deploy backend service
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ kube_namespace }}"
+        definition: "{{ lookup('template', '../kubernetes/backend/service.yaml') | from_yaml }}"
+
+    - name: Deploy frontend
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ kube_namespace }}"
+        definition: "{{ lookup('template', '../kubernetes/frontend/deployment.yaml') | from_yaml }}"
+
+    - name: Deploy frontend service
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ kube_namespace }}"
+        definition: "{{ lookup('template', '../kubernetes/frontend/service.yaml') | from_yaml }}"
+
+    - name: Deploy Ingress
+      kubernetes.core.k8s:
+        state: present
+        namespace: "{{ kube_namespace }}"
+        definition: "{{ lookup('file', '../kubernetes/ingress/fullstack-ingress.yaml') | from_yaml }}"
