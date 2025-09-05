@@ -42,12 +42,16 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('frontend') {
-                    sh 'npm install'
-                    sh 'ng build --configuration production'
+                    script {
+                        withDockerRegistry(credentialsId: 'docker', url: '') {
+                            sh """
+                               docker build -t ${FRONTEND_IMAGE} .
+                               docker push ${FRONTEND_IMAGE}
+                            """
+                        }
+                    }
                 }
             }
-        }
-
         stage('Docker Build & Push Frontend') {
             steps {
                 dir('frontend') {
