@@ -52,6 +52,7 @@ pipeline {
                     }
                 }
             }
+        }
         stage('Docker Build & Push Frontend') {
             steps {
                 dir('frontend') {
