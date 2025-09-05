@@ -17,7 +17,7 @@ pipeline {
 
         stage('Build Backend') {
             steps {
-                dir('backend') {
+                dir('demo') {
                     sh 'mvn clean package -DskipTests'
                 }
             }
@@ -26,7 +26,7 @@ pipeline {
         
         stage('Docker Build & Push Backend') {
             steps {
-                dir('backend') {
+                dir('demo') {
                     script {
                         withDockerRegistry(credentialsId: 'docker', url: '') {
                             sh """
