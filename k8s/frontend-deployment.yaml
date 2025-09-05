@@ -26,7 +26,8 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 30080       # البورت اللي تفتحينه من المتصفح
-      targetPort: 80    # بورت Nginx داخل الـ container
+    - port: 8080
       protocol: TCP
-  type: LoadBalancer
+      targetPort: 8080
+      nodePort: 30100
+  type: NodePort
