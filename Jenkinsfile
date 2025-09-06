@@ -44,7 +44,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     sh """
-                        ansible-playbook -i inventory.ini Build.yml \
+                        ansible-playbook -i inventory.ini ansible/build.yml \
                     """
                 }
             }
@@ -58,7 +58,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     sh """
-                        ansible-playbook -i inventory.ini Push.yml \
+                        ansible-playbook -i inventory.ini ansible/push.yml \
                     """
                 }
             }
@@ -66,7 +66,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                sh 'ansible-playbook -i inventory.ini deploy.yml'
+                sh 'ansible-playbook -i inventory.ini ansible/deploy.yml'
             }
         }
     }
