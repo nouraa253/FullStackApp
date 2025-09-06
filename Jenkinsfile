@@ -2,74 +2,94 @@ pipeline {
   agent any
 
   environment {
-    REGISTRY          = "docker.io/nouraa253" // عدّل حسب ريجسترك (docker.io/username أو ghcr.io/org)
-    REGISTRY_CRED_ID  = 'docker'                 // Jenkins Credentials (Username/Password أو Token)
-    KUBECONFIG_CRED   = 'kubeconfig'                      // Secret file للكوبكونفيغ
-    APP_NAME          = 'project5'
-    K8S_NAMESPACE     = 'project5'
+    REGISTRY         = "docker.io/nouraa253"     // غيّر إذا اسم حسابك مختلف
+    REGISTRY_CRED_ID = "docker-"    // Jenkins credential (username+password أو token)
+    KUBECONFIG_CRED  = "kubeconfig"         // Jenkins secret file فيه kubeconfig
+    APP_NAME         = "project5"
+    K8S_NAMESPACE    = "project5"
   }
 
   stages {
+
     stage('Checkout') {
-      steps { checkout scm }
-    }
-
-    stage('Ansible Galaxy') {
       steps {
-        sh '''
-          cd ansible
-          ansible-galaxy collection install -r requirements.yml
-        '''
+        checkout scm
       }
     }
 
-    stage('Build (Ansible)') {
+    stage('Build Images') {
       steps {
-        sh '''
-          cd ansible
-          ansible-playbook -i inventory.ini build.yml \
-            -e registry="${REGISTRY}" \
-            -e app_name="${APP_NAME}" \
-            -e build_tag="${BUILD_NUMBER}"
-        '''
+        script {
+          sh """
+            echo "===> Build frontend image"
+            docker build -t ${REGISTRY}/${APP_NAME}-frontend:${BUILD_NUMBER} ./frontend
+
+            echo "===> Build backend image"
+            docker build -t ${REGISTRY}/${APP_NAME}-backend:${BUILD_NUMBER} ./demo
+          """
+        }
       }
     }
 
-    stage('Push (Ansible)') {
+    stage('Push Images') {
       steps {
         withCredentials([usernamePassword(credentialsId: "${REGISTRY_CRED_ID}", usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-          sh '''
-            cd ansible
-            ansible-playbook -i inventory.ini push.yml \
-              -e registry="${REGISTRY}" \
-              -e registry_username="${REG_USER}" \
-              -e registry_password="${REG_PASS}" \
-              -e app_name="${APP_NAME}" \
-              -e build_tag="${BUILD_NUMBER}"
-          '''
+          sh """
+            echo "===> Login to Docker Registry"
+            echo "${REG_PASS}" | docker login -u "${REG_USER}" --password-stdin ${REGISTRY}
+
+            echo "===> Push frontend image"
+            docker push ${REGISTRY}/${APP_NAME}-frontend:${BUILD_NUMBER}
+
+            echo "===> Push backend image"
+            docker push ${REGISTRY}/${APP_NAME}-backend:${BUILD_NUMBER}
+
+            docker logout ${REGISTRY}
+          """
         }
       }
     }
 
-stage('Deploy to Kubernetes (kubectl via Ansible)') {
-  steps {
-    withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
-      sh '''
-        set -e
-        # مع withKubeConfig، Jenkins يوفّر env KUBECONFIG تلقائيًا لهذه الخطوة
-        cd ansible
-        ansible-playbook -i inventory.ini deploy_kubectl.yml \
-          -e k8s_namespace="${K8S_NAMESPACE}" \
-          -e registry="${REGISTRY}" \
-          -e app_name="${APP_NAME}" \
-          -e build_tag="${BUILD_NUMBER}" \
-          -e kubeconfig_path="$KUBECONFIG"
-      '''
+    stage('Deploy to Kubernetes') {
+      steps {
+        withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+          sh """
+            set -e
+            echo "===> Apply namespace"
+            kubectl apply -f k8s/namespace.yaml
+
+            echo "===> Apply MySQL"
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-secret.yaml
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-configmap.yaml
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-pvc.yaml
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-deployment.yaml
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-service.yaml
+
+            echo "===> Apply Backend"
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/backend-deployment.yaml
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/backend-service.yaml
+
+            echo "===> Apply Frontend"
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/frontend-deployment.yaml
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/frontend-service.yaml
+
+            echo "===> Apply Ingress (if exists)"
+            kubectl apply -n ${K8S_NAMESPACE} -f k8s/ingress.yaml || true
+
+            echo "===> Update images with build number"
+            kubectl -n ${K8S_NAMESPACE} set image deployment/backend backend=${REGISTRY}/${APP_NAME}-backend:${BUILD_NUMBER} --record=true
+            kubectl -n ${K8S_NAMESPACE} set image deployment/frontend frontend=${REGISTRY}/${APP_NAME}-frontend:${BUILD_NUMBER} --record=true
+
+            echo "===> Wait for rollouts"
+            kubectl -n ${K8S_NAMESPACE} rollout status deployment/mysql --timeout=180s
+            kubectl -n ${K8S_NAMESPACE} rollout status deployment/backend --timeout=300s
+            kubectl -n ${K8S_NAMESPACE} rollout status deployment/frontend --timeout=180s
+          """
         }
       }
     }
 
-  } 
+  }
 
   post {
     always {
