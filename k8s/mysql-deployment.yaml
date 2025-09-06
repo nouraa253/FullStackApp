@@ -4,30 +4,38 @@ metadata:
   name: mysql
   namespace: project5
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
-  selector: { matchLabels: { app: mysql } }
+  selector:
+    matchLabels:
+      app: mysql
   template:
     metadata:
-      labels: { app: mysql }
+      labels:
+        app: mysql
     spec:
       containers:
         - name: mysql
           image: mysql:8.0
+          env:
+            - name: MYSQL_DATABASE
+              value: appdb
+            - name: MYSQL_USER
+              value: appuser
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
+            - name: MYSQL_ROOT_PASSWORD
+              value: rootpass
           ports:
             - containerPort: 3306
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-root-password } }
-            - name: MYSQL_DATABASE
-              valueFrom: { configMapKeyRef: { name: app-config, key: MYSQL_DATABASE } }
-            - name: MYSQL_USER
-              valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-user } }
-            - name: MYSQL_PASSWORD
-              valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-password } }
           volumeMounts:
-            - name: data
+            - name: mysql-data
               mountPath: /var/lib/mysql
       volumes:
-        - name: data
+        - name: mysql-data
           persistentVolumeClaim:
             claimName: mysql-pvc
