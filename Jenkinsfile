@@ -1,86 +1,102 @@
 pipeline {
-    agent any
+  agent any
 
-    environment {
-        DOCKERHUB_CREDENTIALS = 'docker'   // ID حق الـ credentials في Jenkins
-        KUBECONFIG_CREDENTIALS = 'kubeconfig' // ID لملف kubeconfig
-        BACKEND_IMAGE = 'nouraa253/backend:latest'
-        FRONTEND_IMAGE = 'nouraa253/frontend:latest'
+  environment {
+    REGISTRY          = credentials('docker.io')   // مثال: registry.example.com
+    REGISTRY_CRED_ID  = 'docker'               // Jenkins Credentials (username/password أو token)
+    KUBECONFIG_CRED   = 'kubeconfig'                    // Jenkins SecretFile للكوبكونفيغ
+    APP_NAME          = 'project5'
+    K8S_NAMESPACE     = 'project5'
+  }
+
+  options {
+    timestamps()
+    ansiColor('xterm')
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    stages {
-        stage('Checkout Code') {
-            steps {
-                git branch: 'main', url: 'git@github.com:nouraa253/FullStackApp.git'
-            }
+    stage('Prepare') {
+      steps {
+        withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG_FILE')]) {
+          sh '''
+            mkdir -p $WORKSPACE/.kube
+            cp "$KUBECONFIG_FILE" $WORKSPACE/.kube/config
+            export KUBECONFIG=$WORKSPACE/.kube/config
+            echo "KUBECONFIG ready."
+          '''
         }
-
-        stage('Build Backend') {
-            steps {
-                dir('demo') {
-                    sh 'mvn clean package -DskipTests'
-                }
-            }
-        }
-
-        
-        stage('Docker Build & Push Backend') {
-            steps {
-                dir('demo') {
-                    script {
-                        withDockerRegistry(credentialsId: 'docker', url: '') {
-                            sh """
-                               docker build -t ${BACKEND_IMAGE} .
-                               docker push ${BACKEND_IMAGE}
-                            """
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Build Frontend') {
-            steps {
-                dir('frontend') {
-                    script {
-                        withDockerRegistry(credentialsId: 'docker', url: '') {
-                            sh """
-                               docker build -t ${FRONTEND_IMAGE} .
-                               docker push ${FRONTEND_IMAGE}
-                            """
-                        }
-                    }
-                }
-            }
-        }
-        stage('Docker Build & Push Frontend') {
-            steps {
-                dir('frontend') {
-                    script {
-                        withDockerRegistry(credentialsId: 'docker', url: '') {
-                            sh """
-                               docker build -t ${FRONTEND_IMAGE} .
-                               docker push ${FRONTEND_IMAGE}
-                            """
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIALS}", variable: 'KUBECONFIG_FILE')]) {
-                        sh """
-                           export KUBECONFIG=${KUBECONFIG_FILE}
-                           kubectl apply -f k8s/mysql-deployment.yaml
-                           kubectl apply -f k8s/backend-deployment.yaml
-                           kubectl apply -f k8s/frontend-deployment.yaml
-                        """
-                    }
-                }
-            }
-        }
+        sh '''
+          python3 -V || true
+          ansible --version || true
+          kubectl version --client || true
+          docker --version || true
+        '''
+      }
     }
+
+    stage('Ansible Galaxy') {
+      steps {
+        sh '''
+          cd ansible
+          ansible-galaxy collection install -r requirements.yml
+        '''
+      }
+    }
+
+    stage('Build (Ansible)') {
+      steps {
+        sh '''
+          cd ansible
+          ansible-playbook -i inventory.ini build.yml \
+            -e registry="${REGISTRY}" \
+            -e app_name="${APP_NAME}" \
+            -e build_tag="${BUILD_NUMBER}"
+        '''
+      }
+    }
+
+    stage('Push (Ansible)') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: "${REGISTRY_CRED_ID}", usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
+          sh '''
+            cd ansible
+            ansible-playbook -i inventory.ini push.yml \
+              -e registry="${REGISTRY}" \
+              -e registry_username="${REG_USER}" \
+              -e registry_password="${REG_PASS}" \
+              -e app_name="${APP_NAME}" \
+              -e build_tag="${BUILD_NUMBER}"
+          '''
+        }
+      }
+    }
+
+    stage('Deploy to Kubernetes (Ansible)') {
+      steps {
+        sh '''
+          export KUBECONFIG=$WORKSPACE/.kube/config
+          cd ansible
+          # deploy.yml عندنا يطبق الملفات المفصولة بترتيبها (namespace -> mysql -> backend -> frontend -> ingress)
+          ansible-playbook -i inventory.ini deploy.yml \
+            -e k8s_namespace="${K8S_NAMESPACE}" \
+            -e registry="${REGISTRY}" \
+            -e app_name="${APP_NAME}" \
+            -e build_tag="${BUILD_NUMBER}"
+        '''
+      }
+    }
+  }
+
+  post {
+    always {
+      // بدّلنا الأرتيفاكت ليجمع كل ملفات الـk8s المفصولة
+      archiveArtifacts artifacts: 'k8s/*.yaml', onlyIfSuccessful: false
+    }
+  }
 }
