@@ -4,29 +4,51 @@ metadata:
   name: backend
   namespace: project5
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
-  selector: { matchLabels: { app: backend } }
+  selector:
+    matchLabels:
+      app: backend
   template:
-    metadata: { labels: { app: backend } }
+    metadata:
+      labels:
+        app: backend
     spec:
+      initContainers:
+        - name: wait-mysql
+          image: busybox:1.36
+          command: ['sh', '-c', 'until nc -z mysql 3306; do echo "waiting mysql..."; sleep 3; done']
       containers:
         - name: backend
-          image: busybox:latest  # placeholder؛ Jenkins سيضبطها بـ set image
-          command: ['sh', '-c', 'echo waiting-for-image && sleep 3600']
+          image: docker.io/nouraa253/project5-backend:latest   # Jenkins يبدله بالـ tag
           ports:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              valueFrom: { configMapKeyRef: { name: app-config, key: SPRING_DATASOURCE_URL } }
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: SPRING_DATASOURCE_URL
             - name: SPRING_DATASOURCE_USERNAME
-              valueFrom: { configMapKeyRef: { name: app-config, key: SPRING_DATASOURCE_USERNAME } }
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: SPRING_DATASOURCE_USERNAME
             - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom: { secretKeyRef: { name: mysql-secret, key: mysql-password } }
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: mysql-password
           readinessProbe:
-            httpGet: { path: /actuator/health, port: 8080 }
-            initialDelaySeconds: 20
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 60
             periodSeconds: 10
+            failureThreshold: 10
           livenessProbe:
-            httpGet: { path: /actuator/health, port: 8080 }
-            initialDelaySeconds: 40
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 90
             periodSeconds: 20
+            failureThreshold: 5
