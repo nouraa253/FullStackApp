@@ -1,21 +1,28 @@
-- hosts: localhost
-  gather_facts: false
+---
+- name: Push Docker Image
+  hosts: localhost
+  connection: local
+  vars:
+    backend-image: "nouraa253/demo-backend"
+    frontend_image: "nouraa253/demo-frontend"
+
   tasks:
-    - name: Login to Docker registry
+    - name: Log in to Docker Hub
       community.docker.docker_login:
-        username: "{{ lookup('env','DOCKER_USER') }}"
-        password: "{{ lookup('env','DOCKER_PASS') }}"
+        username: "{{ lookup('env', 'DOCKER_USERNAME') }}"
+        password: "{{ lookup('env', 'DOCKER_PASSWORD') }}"
 
-    - name: Push backend image
+    - name: Push existing Docker image
       community.docker.docker_image:
-        name: "{{ lookup('env','BACKEND_IMAGE') }}"
-        tag: "latest"
-        source: local
+        name: "{{ backend-image }}"
+        source: local  
         push: yes
+        state: present
+        
+    - name: Push existing Docker image
+      community.docker.docker_image:
+        name: "{{ frontend_image }}"
+        source: local  
+        push: yes
+        state: present
 
-    - name: Push frontend image
-      community.docker.docker_image:
-        name: "{{ lookup('env','FRONTEND_IMAGE') }}"
-        tag: "latest"
-        source: local
-        push: yes
