@@ -5,15 +5,15 @@
   tasks:
     - name: Copy mysql manifest to target server
       copy:
-        src: /var/lib/jenkins/workspace/FullStackAppk8s/mysql-deployment.yml
-        dest: /home/ubuntu//mysql-deployment.yml
+        src: /var/lib/jenkins/workspace/FullStackApp/k8s/mysql-deployment.yml
+        dest: /home/ubuntu/mysql-deployment.yml
         owner: ubuntu
         group: ubuntu
         mode: '0644'
         
     - name: Copy backend manifest to target server
       copy:
-        src: /var/lib/jenkins/workspace/FullStackAppk8s/backend-deployment.yml
+        src: /var/lib/jenkins/workspace/FullStackApp/k8s/backend-deployment.yml
         dest: /home/ubuntu/backend-deployment.yml
         owner: ubuntu
         group: ubuntu
@@ -21,7 +21,7 @@
 
     - name: Copy frontend manifest to target server
       copy:
-        src: /var/lib/jenkins/workspace/FullStackAppk8s/frontend-deployment.yml
+        src: /var/lib/jenkins/workspace/FullStackApp/k8s/frontend-deployment.yml
         dest: /home/ubuntu/frontend-deployment.yml
         owner: ubuntu
         group: ubuntu
