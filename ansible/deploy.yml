@@ -1,0 +1,65 @@
+---
+- name: Deploy split Kubernetes manifests with templated images
+  hosts: local
+  gather_facts: false
+  vars:
+    k8s_dir: "../k8s"
+  tasks:
+    - name: Apply namespace first
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ k8s_dir }}/namespace.yaml"
+
+    - name: Create/Update DB secrets and config
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ item }}"
+      loop:
+        - "{{ k8s_dir }}/mysql-secret.yaml"
+        - "{{ k8s_dir }}/mysql-configmap.yaml"
+
+    - name: Create/Update MySQL PVC, Deployment, Service
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ item }}"
+      loop:
+        - "{{ k8s_dir }}/mysql-pvc.yaml"
+        - "{{ k8s_dir }}/mysql-deployment.yaml"
+        - "{{ k8s_dir }}/mysql-service.yaml"
+
+    # نولّد الـ Deployments من قوالب Jinja حتى نحقن image tag الديناميكي
+    - name: Render backend deployment from template
+      copy:
+        dest: "{{ k8s_dir }}/_rendered-backend-deployment.yaml"
+        content: "{{ lookup('template', 'templates/backend-deployment.yaml.j2') }}"
+
+    - name: Render frontend deployment from template
+      copy:
+        dest: "{{ k8s_dir }}/_rendered-frontend-deployment.yaml"
+        content: "{{ lookup('template', 'templates/frontend-deployment.yaml.j2') }}"
+
+    - name: Apply backend deployment
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ k8s_dir }}/_rendered-backend-deployment.yaml"
+
+    - name: Apply backend service (NodePort 30081)
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ k8s_dir }}/backend-service.yaml"
+
+    - name: Apply frontend deployment
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ k8s_dir }}/_rendered-frontend-deployment.yaml"
+
+    - name: Apply frontend service (NodePort 30080)
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ k8s_dir }}/frontend-service.yaml"
+
+    - name: Apply ingress (optional)
+      kubernetes.core.k8s:
+        state: present
+        src: "{{ k8s_dir }}/ingress.yaml"
+      ignore_errors: true
