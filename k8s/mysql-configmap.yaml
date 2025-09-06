@@ -4,9 +4,5 @@ metadata:
   name: app-config
   namespace: project5
 data:
-  MYSQL_DATABASE: "appdb"
-  MYSQL_HOST: "mysql"
-  MYSQL_PORT: "3306"
-  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/appdb?useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8&serverTimezone=UTC"
-  SPRING_DATASOURCE_USERNAME: "appuser"
-  SPRING_DATASOURCE_DRIVER: "com.mysql.cj.jdbc.Driver"
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/appdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+  SPRING_DATASOURCE_USERNAME: appuser
