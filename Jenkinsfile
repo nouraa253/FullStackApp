@@ -52,7 +52,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/deploy.yml'
+                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/deploy.yml', inventory: 'ansible/inventory.ini'
             }
         }
     }
