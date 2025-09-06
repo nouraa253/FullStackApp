@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     REGISTRY         = "docker.io/nouraa253"     // غيّر إذا اسم حسابك مختلف
-    REGISTRY_CRED_ID = "docker-"    // Jenkins credential (username+password أو token)
+    REGISTRY_CRED_ID = "docker"    // Jenkins credential (username+password أو token)
     KUBECONFIG_CRED  = "kubeconfig"         // Jenkins secret file فيه kubeconfig
     APP_NAME         = "project5"
     K8S_NAMESPACE    = "project5"
