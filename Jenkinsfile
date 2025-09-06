@@ -65,10 +65,11 @@ stage('Deploy to Kubernetes (kubectl via Ansible)') {
           -e build_tag="${BUILD_NUMBER}" \
           -e kubeconfig_path="$KUBECONFIG"
       '''
+        }
+      }
     }
-  }
-}
 
+  } 
 
   post {
     always {
