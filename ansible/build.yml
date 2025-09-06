@@ -4,7 +4,7 @@
   gather_facts: false
   vars:
     frontend_context: "../frontend"
-    backend_context: "../Demo"
+    backend_context: "../demo"
   tasks:
     - name: Build frontend image
       community.docker.docker_image:
