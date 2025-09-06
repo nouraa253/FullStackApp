@@ -9,11 +9,6 @@ pipeline {
     K8S_NAMESPACE     = 'project5'
   }
 
-  options {
-    timestamps()
-    ansiColor('xterm')
-  }
-
   stages {
     stage('Checkout') {
       steps { checkout scm }
