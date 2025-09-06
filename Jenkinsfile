@@ -17,7 +17,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     sh """
-                        ansible-playbook -i inventory.ini ansible/build.yml \
+                        ansible-playbook -i ansible/inventory.ini ansible/build.yml \
                     """
                 }
             }
@@ -31,7 +31,7 @@ pipeline {
                     passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
                     sh """
-                        ansible-playbook -i inventory.ini ansible/push.yml \
+                        ansible-playbook -i ansible/inventory.ini ansible/push.yml \
                     """
                 }
             }
