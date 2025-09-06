@@ -4,8 +4,9 @@ metadata:
   name: mysql-pvc
   namespace: project5
 spec:
-  accessModes: ["ReadWriteOnce"]
+  accessModes:
+    - ReadWriteOnce
   resources:
     requests:
       storage: 5Gi
-  # storageClassName: "standard"   # عيّنها إذا عندك StorageClass معيّن
+  storageClassName: local-path   # يفترض أنك ركبت local-path provisioner
