@@ -1,21 +1,16 @@
----
-- name: Build Docker images (frontend & backend)
-  hosts: local
-  gather_facts: false
-  vars:
-    frontend_context: "../frontend"
-    backend_context: "../demo"
+- hosts: localhost
   tasks:
-    - name: Build frontend image
-      community.docker.docker_image:
-        name: "{{ registry }}/{{ app_name }}-frontend:{{ build_tag }}"
-        build:
-          path: "{{ frontend_context }}"
-        source: build
+    - name: Login to Docker registry
+      community.docker.docker_login:
+        username: "{{ lookup('env','DOCKER_USER') }}"
+        password: "{{ lookup('env','DOCKER_PASS') }}"
 
-    - name: Build backend image
+    - name: Push backend image
       community.docker.docker_image:
-        name: "{{ registry }}/{{ app_name }}-backend:{{ build_tag }}"
-        build:
-          path: "{{ backend_context }}"
-        source: build
+        name: "{{ lookup('env','BACKEND_IMAGE') }}"
+        push: yes
+
+    - name: Push frontend image
+      community.docker.docker_image:
+        name: "{{ lookup('env','FRONTEND_IMAGE') }}"
+        push: yes
