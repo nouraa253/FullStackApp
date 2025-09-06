@@ -1,6 +1,6 @@
 ---
 - name: Deploy split Kubernetes manifests with templated images
-  hosts: local
+  hosts: kubernetes_master
   gather_facts: false
   vars:
     k8s_dir: "../k8s"
