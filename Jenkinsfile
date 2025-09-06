@@ -3,8 +3,8 @@ pipeline {
 
   environment {
     REGISTRY          = "docker.io/nouraa253" // عدّل حسب ريجسترك (docker.io/username أو ghcr.io/org)
-    REGISTRY_CRED_ID  = 'docker-registry-cred'                 // Jenkins Credentials (Username/Password أو Token)
-    KUBECONFIG_CRED   = 'kubeconfig-cred'                      // Secret file للكوبكونفيغ
+    REGISTRY_CRED_ID  = 'docker'                 // Jenkins Credentials (Username/Password أو Token)
+    KUBECONFIG_CRED   = 'kubeconfig'                      // Secret file للكوبكونفيغ
     APP_NAME          = 'project5'
     K8S_NAMESPACE     = 'project5'
   }
