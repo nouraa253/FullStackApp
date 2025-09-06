@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: demo-frontend
-          image: your-dockerhub-user/demo-frontend:latest
+          image: nouraa253/demo-frontend:latest
           ports:
             - containerPort: 80
 ---
