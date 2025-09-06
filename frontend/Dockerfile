@@ -1,31 +1,14 @@
-# استخدم نسخة خفيفة من Node.js
-FROM node:20-alpine
-
-# اعمل مجلد للتطبيق
+# Build stage
+FROM node:18-bullseye AS build
 WORKDIR /app
-
-# انسخ ملفات package.json و package-lock.json
 COPY package*.json ./
-
-# ثبت الاعتمادات
-RUN npm install -g @angular/cli@16.2.0   # إذا تحتاجي نسخة محددة من Angular
-RUN npm install
-
-# انسخ باقي ملفات المشروع
+RUN npm ci
 COPY . .
+# تأكد أن "npm run build" يخرج إلى مجلد dist (لو اسم مشروعك داخل dist/<name> لا مشكلة)
+RUN npm run build
 
-# ابني المشروع
-RUN ng build --configuration production
-
-# استخدم Nginx لتقديم ملفات الـ frontend
+# Run stage
 FROM nginx:alpine
-COPY --from=0 /app/dist /usr/share/nginx/html
-
-# افتح البورت
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
-
-# شغّل Nginx
-CMD ["nginx", "-g", "daemon off;"]
-
-
-
