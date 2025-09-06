@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_USER = credentials('docker-username')   // خزّن بياناتك بـ Jenkins Credentials
-        DOCKER_PASS = credentials('docker-password')
         DOCKER_REGISTRY = "docker.io/nouraa253"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/demo-backend:latest"
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/demo-frontend:latest"
@@ -38,21 +36,37 @@ pipeline {
             }
         }
         
-        stage('Build with Ansible') {
+        stage('Docker Build') {
             steps {
-                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/build.yml'
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    sh """
+                        ansible-playbook -i inventory.ini Build.yml \
+                    """
+                }
             }
         }
 
-        stage('Push Images with Ansible') {
+        stage('Docker Push using Ansible') {
             steps {
-                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/push.yml'
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker',
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    sh """
+                        ansible-playbook -i inventory.ini Push.yml \
+                    """
+                }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/deploy.yml', inventory: 'ansible/inventory.ini'
+                sh 'ansible-playbook -i inventory.ini deploy.yml'
             }
         }
     }
