@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_REGISTRY = "docker.io/nouraa253"
+        DOCKER_REGISTRY = "nouraa253"
         BACKEND_IMAGE = "${DOCKER_REGISTRY}/demo-backend:latest"
         FRONTEND_IMAGE = "${DOCKER_REGISTRY}/demo-frontend:latest"
     }
