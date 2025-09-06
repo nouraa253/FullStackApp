@@ -31,8 +31,7 @@ metadata:
 spec:
   selector:
     app: demo-backend
-  type: NodePort
+  type: ClusterIP          # <— داخل الكلاستر فقط
   ports:
     - port: 8080
       targetPort: 8080
-      nodePort: 30080
