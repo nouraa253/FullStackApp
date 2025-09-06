@@ -1,0 +1,21 @@
+---
+- name: Build Docker images (frontend & backend)
+  hosts: local
+  gather_facts: false
+  vars:
+    frontend_context: "../frontend"
+    backend_context: "../Demo"
+  tasks:
+    - name: Build frontend image
+      community.docker.docker_image:
+        name: "{{ registry }}/{{ app_name }}-frontend:{{ build_tag }}"
+        build:
+          path: "{{ frontend_context }}"
+        source: build
+
+    - name: Build backend image
+      community.docker.docker_image:
+        name: "{{ registry }}/{{ app_name }}-backend:{{ build_tag }}"
+        build:
+          path: "{{ backend_context }}"
+        source: build
