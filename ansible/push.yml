@@ -1,0 +1,21 @@
+---
+- name: Login and push images
+  hosts: local
+  gather_facts: false
+  vars:
+    images:
+      - "{{ registry }}/{{ app_name }}-frontend:{{ build_tag }}"
+      - "{{ registry }}/{{ app_name }}-backend:{{ build_tag }}"
+  tasks:
+    - name: Docker login
+      community.docker.docker_login:
+        registry_url: "https://{{ (registry.split('/'))[0] }}"
+        username: "{{ registry_username }}"
+        password: "{{ registry_password }}"
+
+    - name: Push images
+      community.docker.docker_image:
+        name: "{{ item }}"
+        push: true
+        source: local
+      loop: "{{ images }}"
