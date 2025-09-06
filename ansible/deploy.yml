@@ -3,7 +3,7 @@
   hosts: kubernetes_master
   become: true
   tasks:
-    - name: Copy compare-app manifest to target server
+    - name: Copy mysql manifest to target server
       copy:
         src: /var/lib/jenkins/workspace/FullStackAppk8s/mysql-deployment.yml
         dest: /home/ubuntu//mysql-deployment.yml
@@ -11,7 +11,7 @@
         group: ubuntu
         mode: '0644'
         
-    - name: Copy compare-app manifest to target server
+    - name: Copy backend manifest to target server
       copy:
         src: /var/lib/jenkins/workspace/FullStackAppk8s/backend-deployment.yml
         dest: /home/ubuntu/backend-deployment.yml
@@ -19,7 +19,7 @@
         group: ubuntu
         mode: '0644'
 
-    - name: Copy compare-app manifest to target server
+    - name: Copy frontend manifest to target server
       copy:
         src: /var/lib/jenkins/workspace/FullStackAppk8s/frontend-deployment.yml
         dest: /home/ubuntu/frontend-deployment.yml
