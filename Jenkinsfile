@@ -51,20 +51,24 @@ pipeline {
       }
     }
 
-    stage('Deploy to Kubernetes (Ansible)') {
-      steps {
-        sh '''
-          export KUBECONFIG=$WORKSPACE/.kube/config
-          cd ansible
-          ansible-playbook -i inventory.ini deploy.yml \
-            -e k8s_namespace="${K8S_NAMESPACE}" \
-            -e registry="${REGISTRY}" \
-            -e app_name="${APP_NAME}" \
-            -e build_tag="${BUILD_NUMBER}"
-        '''
-      }
+stage('Deploy to Kubernetes (kubectl via Ansible)') {
+  steps {
+    withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
+      sh '''
+        set -e
+        # مع withKubeConfig، Jenkins يوفّر env KUBECONFIG تلقائيًا لهذه الخطوة
+        cd ansible
+        ansible-playbook -i inventory.ini deploy_kubectl.yml \
+          -e k8s_namespace="${K8S_NAMESPACE}" \
+          -e registry="${REGISTRY}" \
+          -e app_name="${APP_NAME}" \
+          -e build_tag="${BUILD_NUMBER}" \
+          -e kubeconfig_path="$KUBECONFIG"
+      '''
     }
   }
+}
+
 
   post {
     always {
