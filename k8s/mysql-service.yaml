@@ -4,9 +4,9 @@ metadata:
   name: mysql
   namespace: project5
 spec:
-  selector: { app: mysql }
+  selector:
+    app: mysql
   ports:
-    - name: mysql
-      port: 3306
+    - port: 3306
       targetPort: 3306
-  type: ClusterIP
+  clusterIP: None
