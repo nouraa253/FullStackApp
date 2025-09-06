@@ -1,0 +1,12 @@
+app_name: project5
+registry: "registry.example.com/your-namespace"
+build_tag: "latest"
+
+k8s_namespace: "project5"
+domain_host: "app.example.com"
+
+mysql:
+  root_password: "change-me"     # استخدم Vault/Secrets في الإنتاج
+  db_name: "appdb"
+  user: "appuser"
+  password: "app-pass"
