@@ -6,7 +6,7 @@
         tag: latest
         source: build
         build:
-          path: "{{ lookup('env','WORKSPACE') }}/Demo"
+          path: "{{ lookup('env','WORKSPACE') }}/demo"
 
     - name: Build frontend Docker image (API points to service inside cluster)
       community.docker.docker_image:
