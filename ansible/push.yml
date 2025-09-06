@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
   vars:
-    backend-image: "nouraa253/demo-backend"
+    backend_image: "nouraa253/demo-backend"
     frontend_image: "nouraa253/demo-frontend"
 
   tasks:
