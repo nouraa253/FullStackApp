@@ -1,16 +1,19 @@
 - hosts: localhost
   tasks:
-    - name: Login to Docker registry
-      community.docker.docker_login:
-        username: "{{ lookup('env','DOCKER_USER') }}"
-        password: "{{ lookup('env','DOCKER_PASS') }}"
-
-    - name: Push backend image
+    - name: Build backend Docker image
       community.docker.docker_image:
+        build:
+          path: ./Demo
         name: "{{ lookup('env','BACKEND_IMAGE') }}"
-        push: yes
+        tag: latest
+        push: no
 
-    - name: Push frontend image
+    - name: Build frontend Docker image (API points to service inside cluster)
       community.docker.docker_image:
+        build:
+          path: ./frontend
+          args:
+            API_URL: "http://demo-backend:8080"
         name: "{{ lookup('env','FRONTEND_IMAGE') }}"
-        push: yes
+        tag: latest
+        push: no
