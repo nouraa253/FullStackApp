@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   environment {
-    REGISTRY          = credentials('docker.io')   // مثال: registry.example.com
-    REGISTRY_CRED_ID  = 'docker'               // Jenkins Credentials (username/password أو token)
-    KUBECONFIG_CRED   = 'kubeconfig'                    // Jenkins SecretFile للكوبكونفيغ
+    REGISTRY          = "docker.io/nouraa253" // عدّل حسب ريجسترك (docker.io/username أو ghcr.io/org)
+    REGISTRY_CRED_ID  = 'docker-registry-cred'                 // Jenkins Credentials (Username/Password أو Token)
+    KUBECONFIG_CRED   = 'kubeconfig-cred'                      // Secret file للكوبكونفيغ
     APP_NAME          = 'project5'
     K8S_NAMESPACE     = 'project5'
   }
@@ -16,9 +16,7 @@ pipeline {
 
   stages {
     stage('Checkout') {
-      steps {
-        checkout scm
-      }
+      steps { checkout scm }
     }
 
     stage('Prepare') {
@@ -82,7 +80,6 @@ pipeline {
         sh '''
           export KUBECONFIG=$WORKSPACE/.kube/config
           cd ansible
-          # deploy.yml عندنا يطبق الملفات المفصولة بترتيبها (namespace -> mysql -> backend -> frontend -> ingress)
           ansible-playbook -i inventory.ini deploy.yml \
             -e k8s_namespace="${K8S_NAMESPACE}" \
             -e registry="${REGISTRY}" \
@@ -95,7 +92,6 @@ pipeline {
 
   post {
     always {
-      // بدّلنا الأرتيفاكت ليجمع كل ملفات الـk8s المفصولة
       archiveArtifacts artifacts: 'k8s/*.yaml', onlyIfSuccessful: false
     }
   }
