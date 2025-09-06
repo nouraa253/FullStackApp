@@ -42,7 +42,7 @@
         KUBECONFIG: /home/ubuntu/.kube/config
 
     - name: Apply new deployment and service
-      command: kubectl apply -f /home/ubuntu/mysql-deployment.yml
+      command: kubectl apply -f /home/ubuntu/mysql-deployment.yaml
       environment:
         KUBECONFIG: /home/ubuntu/.kube/config
 
@@ -61,7 +61,7 @@
         KUBECONFIG: /home/ubuntu/.kube/config
 
     - name: Apply new deployment and service
-      command: kubectl apply -f /home/ubuntu/backend-deployment.yml
+      command: kubectl apply -f /home/ubuntu/backend-deployment.yaml
       environment:
         KUBECONFIG: /home/ubuntu/.kube/config
 
@@ -80,7 +80,7 @@
         KUBECONFIG: /home/ubuntu/.kube/config
 
     - name: Apply new deployment and service
-      command: kubectl apply -f /home/ubuntu/frontend-deployment.yml
+      command: kubectl apply -f /home/ubuntu/frontend-deployment.yaml
       environment:
         KUBECONFIG: /home/ubuntu/.kube/config
  
