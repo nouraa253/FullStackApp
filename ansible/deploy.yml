@@ -1,77 +1,86 @@
 ---
-- name: Deploy full-stack via kubectl (local)
-  hosts: local
-  gather_facts: false
-  vars:
-    k8s_dir: "../k8s"
-    k8s_namespace: "{{ k8s_namespace | default('project5') }}"
-    registry: "{{ registry | default('docker.io/yourname') }}"
-    app_name: "{{ app_name | default('project5') }}"
-    build_tag: "{{ build_tag | default('latest') }}"
-    kubeconfig_path: "{{ kubeconfig_path | default(lookup('env','KUBECONFIG')) }}"
+- name: Deploy compare-app on Kubernetes
+  hosts: kubernetes_master
+  become: true
   tasks:
-    - name: Show kubectl and kubeconfig info
-      shell: |
-        set -e
-        kubectl version --client
-        echo "KUBECONFIG=${KUBECONFIG:-{{ kubeconfig_path }}}"
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
-      register: info_out
+    - name: Copy compare-app manifest to target server
+      copy:
+        src: /var/lib/jenkins/workspace/FullStackAppk8s/mysql-deployment.yml
+        dest: /home/ubuntu//mysql-deployment.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+        
+    - name: Copy compare-app manifest to target server
+      copy:
+        src: /var/lib/jenkins/workspace/FullStackAppk8s/backend-deployment.yml
+        dest: /home/ubuntu/backend-deployment.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+
+    - name: Copy compare-app manifest to target server
+      copy:
+        src: /var/lib/jenkins/workspace/FullStackAppk8s/frontend-deployment.yml
+        dest: /home/ubuntu/frontend-deployment.yml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+        
+    - name: Check if deployment exists
+      command: kubectl get deployment mysql 
+      register: deployment_check
+      failed_when: false
       changed_when: false
-
-    - name: Ensure namespace exists
-      shell: |
-        set -e
-        kubectl get ns "{{ k8s_namespace }}" || kubectl create ns "{{ k8s_namespace }}"
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    - name: Apply core manifests (secrets, configmap, pvc, mysql)
-      shell: |
-        set -e
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/mysql-secret.yaml"
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/mysql-configmap.yaml"
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/mysql-pvc.yaml"
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/mysql-deployment.yaml"
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/mysql-service.yaml"
+    - name: Delete existing deployment if found
+      command: kubectl delete deployment mysql 
+      when: deployment_check.rc == 0
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    - name: Apply backend/frontend services (NodePort)
-      shell: |
-        set -e
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/backend-service.yaml"
-        kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/frontend-service.yaml"
+    - name: Apply new deployment and service
+      command: kubectl apply -f /home/ubuntu/mysql-deployment.yml
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    - name: Apply deployments first time if missing
-      shell: |
-        set -e
-        if ! kubectl -n "{{ k8s_namespace }}" get deploy backend >/dev/null 2>&1; then
-          kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/backend-deployment.yaml"
-        fi
-        if ! kubectl -n "{{ k8s_namespace }}" get deploy frontend >/dev/null 2>&1; then
-          kubectl apply -n "{{ k8s_namespace }}" -f "{{ k8s_dir }}/frontend-deployment.yaml"
-        fi
+    - name: Check if deployment exists
+      command: kubectl get deployment demo-backend
+      register: deployment_check
+      failed_when: false
+      changed_when: false
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    - name: Set images to current build tag
-      shell: |
-        set -e
-        kubectl -n "{{ k8s_namespace }}" set image deployment/backend  backend="{{ registry }}/{{ app_name }}-backend:{{ build_tag }}" --record=true
-        kubectl -n "{{ k8s_namespace }}" set image deployment/frontend frontend="{{ registry }}/{{ app_name }}-frontend:{{ build_tag }}" --record=true
+    - name: Delete existing deployment if found
+      command: kubectl delete deployment demo-backend
+      when: deployment_check.rc == 0
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    - name: Rollout status (backend)
-      shell: kubectl -n "{{ k8s_namespace }}" rollout status deployment/backend --timeout=180s
+    - name: Apply new deployment and service
+      command: kubectl apply -f /home/ubuntu/backend-deployment.yml
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    - name: Rollout status (frontend)
-      shell: kubectl -n "{{ k8s_namespace }}" rollout status deployment/frontend --timeout=180s
+    - name: Check if deployment exists
+      command: kubectl get deployment demo-frontend 
+      register: deployment_check
+      failed_when: false
+      changed_when: false
       environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Delete existing deployment if found
+      command: kubectl delete deployment demo-frontend 
+      when: deployment_check.rc == 0
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Apply new deployment and service
+      command: kubectl apply -f /home/ubuntu/frontend-deployment.yml
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+ 
