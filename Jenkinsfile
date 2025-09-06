@@ -1,99 +1,59 @@
 pipeline {
-  agent any
+    agent any
 
-  environment {
-    REGISTRY         = "docker.io/nouraa253"     // غيّر إذا اسم حسابك مختلف
-    REGISTRY_CRED_ID = "docker"    // Jenkins credential (username+password أو token)
-    KUBECONFIG_CRED  = "kubeconfig"         // Jenkins secret file فيه kubeconfig
-    APP_NAME         = "project5"
-    K8S_NAMESPACE    = "project5"
-  }
-
-  stages {
-
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
+    environment {
+        DOCKER_USER = credentials('docker-username')   // خزّن بياناتك بـ Jenkins Credentials
+        DOCKER_PASS = credentials('docker-password')
+        DOCKER_REGISTRY = "docker.io/nouraa253"
+        BACKEND_IMAGE = "${DOCKER_REGISTRY}/demo-backend:latest"
+        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/demo-frontend:latest"
     }
 
-    stage('Build Images') {
-      steps {
-        script {
-          sh """
-            echo "===> Build frontend image"
-            docker build -t ${REGISTRY}/${APP_NAME}-frontend:${BUILD_NUMBER} ./frontend
-
-            echo "===> Build backend image"
-            docker build -t ${REGISTRY}/${APP_NAME}-backend:${BUILD_NUMBER} ./demo
-          """
+      stages {
+        stage('Build') {
+            steps {
+                script {
+                    try {
+                        sh 'mvn clean package -DskipTests=true'
+                        env.STAGE_BUILD = "SUCCESS"
+                    } catch (err) {
+                        env.STAGE_BUILD = "FAILURE"
+                        throw err
+                    }
+                }
+            }
         }
-      }
-    }
 
-    stage('Push Images') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: "${REGISTRY_CRED_ID}", usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
-          sh """
-            echo "===> Login to Docker Registry"
-            echo "${REG_PASS}" | docker login -u "${REG_USER}" --password-stdin ${REGISTRY}
-
-            echo "===> Push frontend image"
-            docker push ${REGISTRY}/${APP_NAME}-frontend:${BUILD_NUMBER}
-
-            echo "===> Push backend image"
-            docker push ${REGISTRY}/${APP_NAME}-backend:${BUILD_NUMBER}
-
-            docker logout ${REGISTRY}
-          """
+        stage('Test') {
+            steps {
+                script {
+                    try {
+                        sh 'mvn test'
+                        env.STAGE_TEST = "SUCCESS"
+                    } catch (err) {
+                        env.STAGE_TEST = "FAILURE"
+                        throw err
+                    }
+                }
+            }
         }
-      }
-    }
-
-    stage('Deploy to Kubernetes') {
-      steps {
-        withKubeConfig([credentialsId: "${KUBECONFIG_CRED}"]) {
-          sh """
-            set -e
-            echo "===> Apply namespace"
-            kubectl apply -f k8s/namespace.yaml
-
-            echo "===> Apply MySQL"
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-secret.yaml
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-configmap.yaml
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-pvc.yaml
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-deployment.yaml
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/mysql-service.yaml
-
-            echo "===> Apply Backend"
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/backend-deployment.yaml
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/backend-service.yaml
-
-            echo "===> Apply Frontend"
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/frontend-deployment.yaml
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/frontend-service.yaml
-
-            echo "===> Apply Ingress (if exists)"
-            kubectl apply -n ${K8S_NAMESPACE} -f k8s/ingress.yaml || true
-
-            echo "===> Update images with build number"
-            kubectl -n ${K8S_NAMESPACE} set image deployment/backend backend=${REGISTRY}/${APP_NAME}-backend:${BUILD_NUMBER} --record=true
-            kubectl -n ${K8S_NAMESPACE} set image deployment/frontend frontend=${REGISTRY}/${APP_NAME}-frontend:${BUILD_NUMBER} --record=true
-
-            echo "===> Wait for rollouts"
-            kubectl -n ${K8S_NAMESPACE} rollout status deployment/mysql --timeout=180s
-            kubectl -n ${K8S_NAMESPACE} rollout status deployment/backend --timeout=300s
-            kubectl -n ${K8S_NAMESPACE} rollout status deployment/frontend --timeout=180s
-          """
+        
+        stage('Build with Ansible') {
+            steps {
+                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/build.yml'
+            }
         }
-      }
-    }
 
-  }
+        stage('Push Images with Ansible') {
+            steps {
+                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/push.yml'
+            }
+        }
 
-  post {
-    always {
-      archiveArtifacts artifacts: 'k8s/*.yaml', onlyIfSuccessful: false
+        stage('Deploy to Kubernetes') {
+            steps {
+                ansiblePlaybook credentialsId: 'ansible-ssh', playbook: 'ansible/deploy.yml'
+            }
+        }
     }
-  }
 }
