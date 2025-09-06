@@ -2,18 +2,18 @@
   tasks:
     - name: Build backend Docker image
       community.docker.docker_image:
-        build:
-          path: ./Demo
         name: "{{ lookup('env','BACKEND_IMAGE') }}"
         tag: latest
-        push: no
+        source: build
+        build:
+          path: "{{ lookup('env','WORKSPACE') }}/Demo"
 
     - name: Build frontend Docker image (API points to service inside cluster)
       community.docker.docker_image:
-        build:
-          path: ./frontend
-          args:
-            API_URL: "http://demo-backend:8080"
         name: "{{ lookup('env','FRONTEND_IMAGE') }}"
         tag: latest
-        push: no
+        source: build
+        build:
+          path: "{{ lookup('env','WORKSPACE') }}/frontend"
+          args:
+            API_URL: "http://demo-backend:8080"
