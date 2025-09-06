@@ -1,9 +1,11 @@
 ---
 - name: Deploy split Kubernetes manifests with templated images
-  hosts: kubernetes_master
+  hosts: localhost
   gather_facts: false
   vars:
+    ansible_python_interpreter: /usr/bin/python3
     k8s_dir: "../k8s"
+
   tasks:
     - name: Apply namespace first
       kubernetes.core.k8s:
@@ -27,7 +29,7 @@
         - "{{ k8s_dir }}/mysql-deployment.yaml"
         - "{{ k8s_dir }}/mysql-service.yaml"
 
-    # نولّد الـ Deployments من قوالب Jinja حتى نحقن image tag الديناميكي
+    # نولّد الـ Deployments من قوالب Jinja لحقن الـ image tag ديناميكياً
     - name: Render backend deployment from template
       copy:
         dest: "{{ k8s_dir }}/_rendered-backend-deployment.yaml"
