@@ -14,7 +14,7 @@
 
     - name: Push existing Docker image
       community.docker.docker_image:
-        name: "{{ backend-image }}"
+        name: "{{ backend_image }}"
         source: local  
         push: yes
         state: present
