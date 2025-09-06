@@ -4,21 +4,31 @@ metadata:
   name: frontend
   namespace: project5
 spec:
+  strategy:
+    type: Recreate
   replicas: 1
-  selector: { matchLabels: { app: frontend } }
+  selector:
+    matchLabels:
+      app: frontend
   template:
-    metadata: { labels: { app: frontend } }
+    metadata:
+      labels:
+        app: frontend
     spec:
       containers:
         - name: frontend
-          image: nginx:alpine  # placeholder؛ Jenkins سيضبطها بـ set image
+          image: docker.io/nouraa253/project5-frontend:latest
           ports:
             - containerPort: 80
           readinessProbe:
-            httpGet: { path: /, port: 80 }
-            initialDelaySeconds: 5
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
             periodSeconds: 10
           livenessProbe:
-            httpGet: { path: /, port: 80 }
-            initialDelaySeconds: 15
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
             periodSeconds: 20
