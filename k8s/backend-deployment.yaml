@@ -1,54 +1,38 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
-  namespace: project5
+  name: demo-backend
 spec:
-  strategy:
-    type: Recreate
-  replicas: 1
   selector:
     matchLabels:
-      app: backend
+      app: demo-backend
   template:
     metadata:
       labels:
-        app: backend
+        app: demo-backend
     spec:
-      initContainers:
-        - name: wait-mysql
-          image: busybox:1.36
-          command: ['sh', '-c', 'until nc -z mysql 3306; do echo "waiting mysql..."; sleep 3; done']
       containers:
-        - name: backend
-          image: docker.io/nouraa253/project5-backend:latest   # Jenkins يبدله بالـ tag
+        - name: demo-backend
+          image: your-dockerhub-user/demo-backend:latest
           ports:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/demo
             - name: SPRING_DATASOURCE_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: SPRING_DATASOURCE_USERNAME
+              value: root
             - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mysql-secret
-                  key: mysql-password
-          readinessProbe:
-            tcpSocket:
-              port: 8080
-            initialDelaySeconds: 60
-            periodSeconds: 10
-            failureThreshold: 10
-          livenessProbe:
-            tcpSocket:
-              port: 8080
-            initialDelaySeconds: 90
-            periodSeconds: 20
-            failureThreshold: 5
+              value: root
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-backend
+spec:
+  selector:
+    app: demo-backend
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 30080
