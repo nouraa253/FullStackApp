@@ -14,25 +14,6 @@ pipeline {
       steps { checkout scm }
     }
 
-    stage('Prepare') {
-      steps {
-        withCredentials([file(credentialsId: "${KUBECONFIG_CRED}", variable: 'KUBECONFIG_FILE')]) {
-          sh '''
-            mkdir -p $WORKSPACE/.kube
-            cp "$KUBECONFIG_FILE" $WORKSPACE/.kube/config
-            export KUBECONFIG=$WORKSPACE/.kube/config
-            echo "KUBECONFIG ready."
-          '''
-        }
-        sh '''
-          python3 -V || true
-          ansible --version || true
-          kubectl version --client || true
-          docker --version || true
-        '''
-      }
-    }
-
     stage('Ansible Galaxy') {
       steps {
         sh '''
