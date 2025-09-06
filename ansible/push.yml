@@ -1,4 +1,5 @@
 - hosts: localhost
+  gather_facts: false
   tasks:
     - name: Login to Docker registry
       community.docker.docker_login:
@@ -8,9 +9,13 @@
     - name: Push backend image
       community.docker.docker_image:
         name: "{{ lookup('env','BACKEND_IMAGE') }}"
+        tag: "latest"
+        source: local
         push: yes
 
     - name: Push frontend image
       community.docker.docker_image:
         name: "{{ lookup('env','FRONTEND_IMAGE') }}"
+        tag: "latest"
+        source: local
         push: yes
