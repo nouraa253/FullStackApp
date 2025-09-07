@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: demo-frontend
-          image: IMAGE_FRONTEND    # Jenkins يستبدلها
+          image: "{{ frontend_image }}"
           imagePullPolicy: Always        # مهم لو بقيت تستخدم latest
           ports:
             - containerPort: 80
