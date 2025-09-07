@@ -2,84 +2,103 @@
 - name: Deploy compare-app on Kubernetes
   hosts: kubernetes_master
   become: true
+
+  vars:
+    build_number: "{{ lookup('env','BUILD_NUMBER') | default('dev', true) }}"
+    backend_image: "docker.io/nouraa253/demo-backend:{{ build_number }}"
+    frontend_image: "docker.io/nouraa253/demo-frontend:{{ build_number }}"
+    kubeconfig_path: "/home/ubuntu/.kube/config"
+    repo_root: "{{ playbook_dir | dirname }}"  # يشير إلى جذر المشروع (اللي فيه مجلد k8s)
+
   tasks:
+    # ===== نسخ mysql (ثابت ما فيه متغيرات)
     - name: Copy mysql manifest to target server
       copy:
-        src: /var/lib/jenkins/workspace/FullStackApp/k8s/mysql-deployment.yaml
+        src: "{{ repo_root }}/k8s/mysql-deployment.yaml"
         dest: /home/ubuntu/mysql-deployment.yaml
         owner: ubuntu
         group: ubuntu
         mode: '0644'
-        
-    - name: Copy backend manifest to target server
-      copy:
-        src: /var/lib/jenkins/workspace/FullStackApp/k8s/backend-deployment.yaml
+
+    # ===== رندر ملفات backend/frontend (من .yaml مباشرة باستخدام template)
+    - name: Render backend manifest with injected image
+      template:
+        src: "{{ repo_root }}/k8s/backend-deployment.yaml"
         dest: /home/ubuntu/backend-deployment.yaml
         owner: ubuntu
         group: ubuntu
         mode: '0644'
 
-    - name: Copy frontend manifest to target server
-      copy:
-        src: /var/lib/jenkins/workspace/FullStackApp/k8s/frontend-deployment.yaml
+    - name: Render frontend manifest with injected image
+      template:
+        src: "{{ repo_root }}/k8s/frontend-deployment.yaml"
         dest: /home/ubuntu/frontend-deployment.yaml
         owner: ubuntu
         group: ubuntu
         mode: '0644'
-        
-    - name: Check if deployment exists
-      command: kubectl get deployment mysql 
-      register: deployment_check
+
+    - name: Show rendered images (debug)
+      debug:
+        msg:
+          - "backend => {{ backend_image }}"
+          - "frontend => {{ frontend_image }}"
+
+    # ===== MySQL
+    - name: Check if deployment exists (mysql)
+      command: kubectl get deployment mysql
+      register: mysql_check
       failed_when: false
       changed_when: false
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Delete existing deployment if found
-      command: kubectl delete deployment mysql 
-      when: deployment_check.rc == 0
+    - name: Delete existing deployment if found (mysql)
+      command: kubectl delete deployment mysql
+      when: mysql_check.rc == 0
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Apply new deployment and service
+    - name: Apply mysql
       command: kubectl apply -f /home/ubuntu/mysql-deployment.yaml
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Check if deployment exists
+    # ===== Backend
+    - name: Check if deployment exists (backend)
       command: kubectl get deployment demo-backend
-      register: deployment_check
+      register: be_check
       failed_when: false
       changed_when: false
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Delete existing deployment if found
+    - name: Delete existing deployment if found (backend)
       command: kubectl delete deployment demo-backend
-      when: deployment_check.rc == 0
+      when: be_check.rc == 0
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Apply new deployment and service
+    - name: Apply backend
       command: kubectl apply -f /home/ubuntu/backend-deployment.yaml
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Check if deployment exists
-      command: kubectl get deployment demo-frontend 
-      register: deployment_check
+    # ===== Frontend
+    - name: Check if deployment exists (frontend)
+      command: kubectl get deployment demo-frontend
+      register: fe_check
       failed_when: false
       changed_when: false
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Delete existing deployment if found
-      command: kubectl delete deployment demo-frontend 
-      when: deployment_check.rc == 0
+    - name: Delete existing deployment if found (frontend)
+      command: kubectl delete deployment demo-frontend
+      when: fe_check.rc == 0
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
 
-    - name: Apply new deployment and service
+    - name: Apply frontend
       command: kubectl apply -f /home/ubuntu/frontend-deployment.yaml
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ kubeconfig_path }}"
