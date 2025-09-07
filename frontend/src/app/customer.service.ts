@@ -10,7 +10,7 @@ export interface Customer {
 
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
-  // مهم: مسار نسبي يمر عبر Nginx داخل البود
+  // استخدم مسار نسبي يمر عبر Nginx
   private apiUrl = '/api/customers';
 
   constructor(private http: HttpClient) {}
