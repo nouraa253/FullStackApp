@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         DOCKER_REGISTRY = "nouraa253"
-        BACKEND_IMAGE = "${DOCKER_REGISTRY}/demo-backend:latest"
-        FRONTEND_IMAGE = "${DOCKER_REGISTRY}/demo-frontend:latest"
+        BACKEND_IMAGE = "nouraa253/demo-backend:${BUILD_NUMBER}"
+        FRONTEND_IMAGE = "nouraa253/demo-frontend:${BUILD_NUMBER}"
     }
 
       stages {
