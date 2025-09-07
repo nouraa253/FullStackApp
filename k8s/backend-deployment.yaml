@@ -13,7 +13,8 @@ spec:
     spec:
       containers:
         - name: demo-backend
-          image: docker.io/nouraa253/demo-backend:latest
+          image: IMAGE_BACKEND    # Jenkins يستبدلها
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
