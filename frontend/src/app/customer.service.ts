@@ -14,7 +14,7 @@ export interface Customer {
 export class CustomerService {
 
   // الآن نستخدم مسار نسبي يمر عبر Nginx
-  private apiUrl = '/api/customers';
+  private apiUrl = 'http://localhost:8080/customers';
 
   constructor(private http: HttpClient) {}
 
