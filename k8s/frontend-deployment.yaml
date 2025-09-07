@@ -13,9 +13,8 @@ spec:
     spec:
       containers:
         - name: demo-frontend
-          image: nouraa253/demo-frontend:latest
-          imagePullPolicy: Always
-
+          image: docker.io/nouraa253/demo-frontend:latest  # ← مهم
+          imagePullPolicy: Always                           # ← مهم
           ports:
             - containerPort: 80
 ---
