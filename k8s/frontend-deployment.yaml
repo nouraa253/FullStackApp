@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: demo-frontend
-          image: docker.io/nouraa253/demo-frontend:latest
+          image: IMAGE_FRONTEND    # Jenkins يستبدلها
           imagePullPolicy: Always        # مهم لو بقيت تستخدم latest
           ports:
             - containerPort: 80
