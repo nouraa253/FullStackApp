@@ -11,10 +11,10 @@ export interface Customer {
 @Injectable({
   providedIn: 'root'
 })
-
 export class CustomerService {
 
-  private apiUrl = 'http://localhost:8080/customers';
+  // الآن نستخدم مسار نسبي يمر عبر Nginx
+  private apiUrl = '/api/customers';
 
   constructor(private http: HttpClient) {}
 
