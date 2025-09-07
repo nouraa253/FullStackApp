@@ -1,19 +1,25 @@
+---
 - hosts: localhost
+  connection: local
+  vars:
+    build_number: "{{ lookup('env','BUILD_NUMBER') | default('dev', true) }}"
+    workspace: "{{ lookup('env','WORKSPACE') | default(playbook_dir ~ '/..', true) }}"
+    backend_image: "nouraa253/demo-backend:{{ build_number }}"
+    frontend_image: "nouraa253/demo-frontend:{{ build_number }}"
+
   tasks:
     - name: Build backend Docker image
       community.docker.docker_image:
-        name: "{{ lookup('env','BACKEND_IMAGE') }}"
-        tag: latest
+        name: "{{ backend_image }}"
         source: build
         build:
-          path: "{{ lookup('env','WORKSPACE') }}/demo"
+          path: "{{ workspace }}/demo"
+          pull: yes
 
-    - name: Build frontend Docker image (API points to service inside cluster)
+    - name: Build frontend Docker image
       community.docker.docker_image:
-        name: "{{ lookup('env','FRONTEND_IMAGE') }}"
-        tag: latest
+        name: "{{ frontend_image }}"
         source: build
         build:
-          path: "{{ playbook_dir | dirname }}/frontend"
-          args:
-            API_URL: "http://demo-backend:8080"
+          path: "{{ workspace }}/frontend"
+          pull: yes
