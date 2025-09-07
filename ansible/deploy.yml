@@ -1,45 +1,85 @@
-- name: Deploy fullstack on Kubernetes
-  hosts: local
-  gather_facts: false
-  vars:
-    repo_root: "{{ playbook_dir | dirname }}"
-
+---
+- name: Deploy compare-app on Kubernetes
+  hosts: kubernetes_master
+  become: true
   tasks:
-    # MySQL
-    - command: kubectl get deployment mysql
-      register: mysql_deploy
-      failed_when: false
-    - command: kubectl delete deployment mysql
-      when: mysql_deploy.rc == 0
-    - command: kubectl get service mysql
-      register: mysql_svc
-      failed_when: false
-    - command: kubectl delete service mysql
-      when: mysql_svc.rc == 0
-    - command: kubectl apply -f {{ repo_root }}/k8s/mysql-deployment.yaml
+    - name: Copy mysql manifest to target server
+      copy:
+        src: /var/lib/jenkins/workspace/FullStackApp/k8s/mysql-deployment.yaml
+        dest: /home/ubuntu/mysql-deployment.yaml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+        
+    - name: Copy backend manifest to target server
+      copy:
+        src: /var/lib/jenkins/workspace/FullStackApp/k8s/backend-deployment.yaml
+        dest: /home/ubuntu/backend-deployment.yaml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
 
-    # Backend
-    - command: kubectl get deployment demo-backend
-      register: be_deploy
+    - name: Copy frontend manifest to target server
+      copy:
+        src: /var/lib/jenkins/workspace/FullStackApp/k8s/frontend-deployment.yaml
+        dest: /home/ubuntu/frontend-deployment.yaml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+        
+    - name: Check if deployment exists
+      command: kubectl get deployment mysql 
+      register: deployment_check
       failed_when: false
-    - command: kubectl delete deployment demo-backend
-      when: be_deploy.rc == 0
-    - command: kubectl get service demo-backend
-      register: be_svc
-      failed_when: false
-    - command: kubectl delete service demo-backend
-      when: be_svc.rc == 0
-    - command: kubectl apply -f {{ repo_root }}/k8s/backend-deployment.yaml
+      changed_when: false
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
 
-    # Frontend
-    - command: kubectl get deployment demo-frontend
-      register: fe_deploy
+    - name: Delete existing deployment if found
+      command: kubectl delete deployment mysql 
+      when: deployment_check.rc == 0
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Apply new deployment and service
+      command: kubectl apply -f /home/ubuntu/mysql-deployment.yaml
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Check if deployment exists
+      command: kubectl get deployment demo-backend
+      register: deployment_check
       failed_when: false
-    - command: kubectl delete deployment demo-frontend
-      when: fe_deploy.rc == 0
-    - command: kubectl get service demo-frontend
-      register: fe_svc
+      changed_when: false
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Delete existing deployment if found
+      command: kubectl delete deployment demo-backend
+      when: deployment_check.rc == 0
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Apply new deployment and service
+      command: kubectl apply -f /home/ubuntu/backend-deployment.yaml
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Check if deployment exists
+      command: kubectl get deployment demo-frontend 
+      register: deployment_check
       failed_when: false
-    - command: kubectl delete service demo-frontend
-      when: fe_svc.rc == 0
-    - command: kubectl apply -f {{ repo_root }}/k8s/frontend-deployment.yaml
+      changed_when: false
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Delete existing deployment if found
+      command: kubectl delete deployment demo-frontend 
+      when: deployment_check.rc == 0
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Apply new deployment and service
+      command: kubectl apply -f /home/ubuntu/frontend-deployment.yaml
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
