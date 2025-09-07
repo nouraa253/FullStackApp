@@ -10,7 +10,7 @@ export interface Customer {
 
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
-  // مهم: مسار نسبي يمر عبر Nginx proxy (k8s Service demo-backend)
+  // مهم: مسار نسبي يمر عبر Nginx داخل البود
   private apiUrl = '/api/customers';
 
   constructor(private http: HttpClient) {}
