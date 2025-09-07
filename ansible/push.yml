@@ -3,8 +3,8 @@
   hosts: localhost
   connection: local
   vars:
-    backend_image: "nouraa253/demo-backend"
-    frontend_image: "nouraa253/demo-frontend"
+    backend_image: "nouraa253/demo-backend:{{ lookup('env','BUILD_NUMBER') }}"
+    frontend_image: "nouraa253/demo-frontend:{{ lookup('env','BUILD_NUMBER') }}"
 
   tasks:
     - name: Log in to Docker Hub
@@ -12,17 +12,16 @@
         username: "{{ lookup('env', 'DOCKER_USERNAME') }}"
         password: "{{ lookup('env', 'DOCKER_PASSWORD') }}"
 
-    - name: Push existing Docker image
+    - name: Push backend Docker image
       community.docker.docker_image:
         name: "{{ backend_image }}"
-        source: local  
-        push: yes
-        state: present
-        
-    - name: Push existing Docker image
-      community.docker.docker_image:
-        name: "{{ frontend_image }}"
-        source: local  
+        source: local
         push: yes
         state: present
 
+    - name: Push frontend Docker image
+      community.docker.docker_image:
+        name: "{{ frontend_image }}"
+        source: local
+        push: yes
+        state: present
