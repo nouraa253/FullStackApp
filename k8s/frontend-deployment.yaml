@@ -14,6 +14,8 @@ spec:
       containers:
         - name: demo-frontend
           image: nouraa253/demo-frontend:latest
+          imagePullPolicy: Always
+
           ports:
             - containerPort: 80
 ---
