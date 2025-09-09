@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: fullstack.myapp   # <-- هنا اسم الدومين
+  - host: fullstack.com   # <-- هنا اسم الدومين
     http:
       paths:
       - path: /
