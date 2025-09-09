@@ -16,7 +16,7 @@ spec:
             name: demo-frontend
             port:
               number: 80
-      - path: /api/?(.*)
+      - path: /customers
         pathType: ImplementationSpecific
         backend:
           service:
