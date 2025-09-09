@@ -44,19 +44,6 @@
           - "frontend => {{ frontend_image }}"
 
     # ===== MySQL
-    - name: Check if deployment exists (mysql)
-      command: kubectl get deployment mysql
-      register: mysql_check
-      failed_when: false
-      changed_when: false
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
-
-    - name: Delete existing deployment if found (mysql)
-      command: kubectl delete deployment mysql
-      when: mysql_check.rc == 0
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
 
     - name: Apply mysql
       command: kubectl apply -f /home/ubuntu/mysql-deployment.yaml
