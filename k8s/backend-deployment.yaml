@@ -32,7 +32,8 @@ metadata:
 spec:
   selector:
     app: demo-backend
-  type: ClusterIP
+  type: NodePort
   ports:
-    - port: 8080
-      targetPort: 8080
+    - port: 8080        # بورت الخدمة داخل الكلاستر
+      targetPort: 8080  # بورت الحاوية
+      nodePort: 30080   # البورت الخارجي على النود (اختاره من رينج 30000-32767)
