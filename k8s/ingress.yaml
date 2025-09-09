@@ -15,11 +15,11 @@ spec:
           service:
             name: demo-frontend
             port:
-              number: 8080
+              number: 80
       - path: /api/?(.*)
         pathType: ImplementationSpecific
         backend:
           service:
             name: demo-backend
             port:
-              number: 80
+              number: 8080
