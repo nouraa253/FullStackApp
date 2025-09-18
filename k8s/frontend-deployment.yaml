@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: nouraa253/demo-frontend:${BUILD_NUMBER}
+          image: "{{ backend_image }}"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
