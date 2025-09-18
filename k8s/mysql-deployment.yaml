@@ -2,7 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mysql
+  namespace: fullstack
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: mysql
@@ -13,21 +15,30 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8
+          image: mysql:8.0
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: root
             - name: MYSQL_DATABASE
-              value: demo
+              value: mydb
           ports:
             - containerPort: 3306
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql
+  namespace: fullstack
 spec:
-  ports:
-    - port: 3306
   selector:
     app: mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
