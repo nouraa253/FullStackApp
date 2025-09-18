@@ -16,7 +16,14 @@ spec:
                 name: backend
                 port:
                   number: 8080
-          - path: /
+          - path: /index.html         # ← مسار صريح للصفحة
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
+          - path: /                   # ← يبقى المسار العام
             pathType: Prefix
             backend:
               service:
