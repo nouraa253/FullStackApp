@@ -17,7 +17,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: demo-backend
+            name: backend
             port:
               number: 8080
 
@@ -26,7 +26,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: demo-backend
+            name: backend
             port:
               number: 8080
 
@@ -35,6 +35,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: demo-frontend
+            name: frontend
             port:
               number: 80
