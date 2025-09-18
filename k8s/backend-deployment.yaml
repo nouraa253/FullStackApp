@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: <YOUR_DOCKER_USERNAME>/demo-backend:latest
+          image: nouraa253/demo-backend:${BUILD_NUMBER}
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
