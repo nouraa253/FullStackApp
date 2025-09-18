@@ -29,7 +29,5 @@ spec:
   selector:
     app: frontend
   ports:
-    - port: 8080
-      protocol: TCP
-      targetPort: 8080
-      nodePort: 30100
+    - port: 80
+      targetPort: 80
