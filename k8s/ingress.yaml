@@ -1,32 +1,40 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: fullstack-ingress
-  namespace: fullstack
+  name: demo-fullstack-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 spec:
   ingressClassName: nginx
   rules:
-    - host: fullstack.com
-      http:
-        paths:
-          - path: /api
-            pathType: Prefix
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 8080
-          - path: /index.html         # ← مسار صريح للصفحة
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend
-                port:
-                  number: 80
-          - path: /                   # ← يبقى المسار العام
-            pathType: Prefix
-            backend:
-              service:
-                name: frontend
-                port:
-                  number: 80
+  - host: fullstack.com     # تأكد أن DNS/hosts يوجّه لهذا الـ IP
+    http:
+      paths:
+      # 1) وجّه /customers إلى الباك إند
+      - path: /customers
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-backend
+            port:
+              number: 8080
+
+      # 2) (اختياري) وجّه /api إلى الباك إند إذا عندك كود يستخدمه
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-backend
+            port:
+              number: 8080
+
+      # 3) باقي المسارات للجذر تروح للفرونت إند
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-frontend
+            port:
+              number: 80
