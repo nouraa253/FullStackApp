@@ -1,25 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-backend
+  name: backend
+  namespace: fullstack-demo
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: demo-backend
+      app: backend
   template:
     metadata:
       labels:
-        app: demo-backend
+        app: backend
     spec:
       containers:
-        - name: demo-backend
-          image: "{{ backend_image }}"
-          imagePullPolicy: Always
+        - name: backend
+          image: <YOUR_DOCKER_USERNAME>/demo-backend:latest
           ports:
             - containerPort: 8080
           env:
             - name: SPRING_DATASOURCE_URL
-              value: jdbc:mysql://mysql:3306/demo
+              value: jdbc:mysql://mysql:3306/mydb?useSSL=false&serverTimezone=UTC
             - name: SPRING_DATASOURCE_USERNAME
               value: root
             - name: SPRING_DATASOURCE_PASSWORD
@@ -28,12 +29,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: demo-backend
+  name: backend
+  namespace: fullstack-demo
 spec:
   selector:
-    app: demo-backend
-  type: NodePort
+    app: backend
   ports:
-    - port: 8080        # بورت الخدمة داخل الكلاستر
-      targetPort: 8080  # بورت الحاوية
-      nodePort: 30080   # البورت الخارجي على النود (اختاره من رينج 30000-32767)
+    - port: 8080
+      targetPort: 8080
