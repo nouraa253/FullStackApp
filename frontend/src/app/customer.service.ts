@@ -11,7 +11,7 @@ export interface Customer {
 @Injectable({ providedIn: 'root' })
 export class CustomerService {
 
-  private apiUrl = `${environment.apiBase}/customers`;
+  private apiUrl = '/api/customers';
 
   constructor(private http: HttpClient) {}
 
