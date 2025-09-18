@@ -114,16 +114,16 @@
         KUBECONFIG: "{{ kubeconfig_path }}"
 
         # ===== Ingress
-    - name: Copy ingress manifest to target server
-      copy:
-        src: "{{ repo_root }}/k8s/ingress.yaml"
-        dest: /home/ubuntu/ingress.yaml
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
+    #  - name: Copy ingress manifest to target server
+      #  copy:
+       #   src: "{{ repo_root }}/k8s/ingress.yaml"
+       #   dest: /home/ubuntu/ingress.yaml
+        #  owner: ubuntu
+         # group: ubuntu
+        #  mode: '0644'
 
-    - name: Apply ingress
-      command: kubectl apply -f /home/ubuntu/ingress.yaml
-      environment:
-        KUBECONFIG: "{{ kubeconfig_path }}"
+  #  - name: Apply ingress
+    # command: kubectl apply -f /home/ubuntu/ingress.yaml
+    #  environment:
+     #   KUBECONFIG: "{{ kubeconfig_path }}"
 
