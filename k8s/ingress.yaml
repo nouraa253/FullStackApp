@@ -2,11 +2,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: fullstack-ingress
-  namespace: fullstack-demo
+  namespace: fullstack
 spec:
   ingressClassName: nginx
   rules:
-    - host: fullstack.com   # تضيفه في /etc/hosts
+    - host: fullstack.local
       http:
         paths:
           - path: /api
