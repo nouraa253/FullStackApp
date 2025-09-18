@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: "{{ backend_image }}"
+          image: "{{ frontend_image }}"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
