@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: fullstack.local
+    - host: fullstack.com
       http:
         paths:
           - path: /api
