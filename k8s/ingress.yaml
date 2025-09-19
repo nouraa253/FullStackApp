@@ -9,7 +9,7 @@ spec:
     - host: fullstack.com
       http:
         paths:
-          - path: /customers
+          - path: /api
             pathType: Prefix
             backend:
               service:
