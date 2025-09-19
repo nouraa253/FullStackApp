@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: fullstack-frontend
+  name: fullstack-ingress
   namespace: fullstack
 spec:
   ingressClassName: nginx
@@ -9,6 +9,13 @@ spec:
     - host: fullstack.com
       http:
         paths:
+          - path: /customers
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
           - path: /
             pathType: Prefix
             backend:
@@ -16,27 +23,3 @@ spec:
                 name: frontend
                 port:
                   number: 80
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: fullstack-backend
-  namespace: fullstack
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    # /customers        -> /api/customers
-    # /customers/abc    -> /api/customers/abc
-    nginx.ingress.kubernetes.io/rewrite-target: /api/customers$2
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: fullstack.com
-      http:
-        paths:
-          - path: /customers(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 8080
