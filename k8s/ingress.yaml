@@ -24,16 +24,15 @@ metadata:
   namespace: fullstack
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # /customers -> /api/customers
-    # /customers/5 -> /api/customers/5
-    nginx.ingress.kubernetes.io/rewrite-target: /api/customers$1
+    # يوجّه /customers و /customers/5 إلى /api/customers و /api/customers/5
+    nginx.ingress.kubernetes.io/rewrite-target: /api/customers/$1
 spec:
   ingressClassName: nginx
   rules:
     - host: fullstack.com
       http:
         paths:
-          - path: /customers(.*)
+          - path: ^/customers/?(.*)$
             pathType: ImplementationSpecific
             backend:
               service:
