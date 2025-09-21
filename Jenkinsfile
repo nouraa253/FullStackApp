@@ -12,7 +12,7 @@ pipeline {
     stage('SonarQube') {
       steps {
         withSonarQubeEnv('SonarQube') {
-          sh 'mvn clean verify sonar:sonar -Dsonar.projectKey=FullStack'
+          sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=FullStack'
         }
       }
     }
