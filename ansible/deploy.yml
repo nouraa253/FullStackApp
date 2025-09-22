@@ -70,10 +70,6 @@
         KUBECONFIG: "{{ kubeconfig_path }}"
 
 
-    - name: Delete MySQL deployment if exists
-      command: kubectl -n {{ ns }} delete deployment mysql --ignore-not-found
-      environment: { KUBECONFIG: "{{ kubeconfig_path }}" }
-    
     - name: Apply mysql
       command: kubectl apply -f /home/ubuntu/mysql-deployment.yaml
       environment:
