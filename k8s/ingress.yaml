@@ -3,19 +3,14 @@ kind: Ingress
 metadata:
   name: fullstack-ingress
   namespace: fullstack
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    # /customers         -> /api/customers
-    # /customers/7       -> /api/customers/7
-    nginx.ingress.kubernetes.io/rewrite-target: /api/customers$2
 spec:
   ingressClassName: nginx
   rules:
     - host: fullstack.com
       http:
         paths:
-          - path: /customers(/|$)(.*)   # ← مجموعتان: (السلاش/النهاية) ثم الذيل كله
-            pathType: ImplementationSpecific
+          - path: /customers
+            pathType: Prefix
             backend:
               service:
                 name: backend
