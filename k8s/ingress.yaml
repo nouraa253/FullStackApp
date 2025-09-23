@@ -3,20 +3,32 @@ kind: Ingress
 metadata:
   name: fullstack-ingress
   namespace: fullstack
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    # /customers       -> /api/customers
+    # /customers/7     -> /api/customers/7
+    nginx.ingress.kubernetes.io/rewrite-target: /api/customers$1
 spec:
   ingressClassName: nginx
   rules:
     - host: fullstack.com
       http:
         paths:
-          - path: /api
+          - path: /customers(/.*)?            # ← نمط بسيط ومقبول
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 8080
+          - path: /api                        # تبقيه لو تبغى الوصول المباشر /api
             pathType: Prefix
             backend:
               service:
                 name: backend
                 port:
                   number: 8080
-          - path: /
+          - path: /                           # باقي المسارات للفرونت
             pathType: Prefix
             backend:
               service:
