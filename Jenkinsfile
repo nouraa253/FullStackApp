@@ -5,10 +5,9 @@ pipeline {
     DOCKER_REGISTRY = "nouraa253"
     BACKEND_IMAGE   = "nouraa253/demo-backend:${BUILD_NUMBER}"
     FRONTEND_IMAGE  = "nouraa253/demo-frontend:${BUILD_NUMBER}"
-    // Nexus
-    NEXUS_URL   = '35.159.39.161:8081'
-    NEXUS_REPO_MAVEN = 'FullStack'      // مستودع maven-hosted
-    NEXUS_REPO_RAW   = 'FullStack-raw'  // مستودع raw-hosted لحزمة الفرونت (tgz)
+    NEXUS_URL = "http://<nexus-ip>:8081"
+    NEXUS_REPO_MAVEN = "FullStack"
+    NEXUS_REPO_RAW   = "FullStack-raw"
   }
 
   stages {
