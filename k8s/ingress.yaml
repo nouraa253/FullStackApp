@@ -5,16 +5,16 @@ metadata:
   namespace: fullstack
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
-    # /customers        -> /api/customers
-    # /customers/5      -> /api/customers/5
-    nginx.ingress.kubernetes.io/rewrite-target: /api/customers$1
+    # /customers         -> /api/customers
+    # /customers/7       -> /api/customers/7
+    nginx.ingress.kubernetes.io/rewrite-target: /api/customers$2
 spec:
   ingressClassName: nginx
   rules:
     - host: fullstack.com
       http:
         paths:
-          - path: /customers(/.*)?     # ← Regex مسموح مع ImplementationSpecific
+          - path: /customers(/|$)(.*)   # ← مجموعتان: (السلاش/النهاية) ثم الذيل كله
             pathType: ImplementationSpecific
             backend:
               service:
