@@ -16,8 +16,8 @@ pipeline {
     stage('Build & Test Backend') {
         steps {
             // تحديد المسار الصحيح لملف pom.xml باستخدام -f
-            sh 'mvn -f backend/pom.xml clean package -DskipTests=true'
-            sh 'mvn -f backend/pom.xml test'
+            sh 'mvn -f demo/pom.xml clean package -DskipTests=true'
+            sh 'mvn -f demo/pom.xml test'
         }
     }
 
@@ -35,7 +35,7 @@ pipeline {
         steps {
             withSonarQubeEnv('sonar-backend') {
                 // تحديد المسار الصحيح لملف pom.xml باستخدام -f
-                sh 'mvn -f backend/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
+                sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
             }
         }
     }
