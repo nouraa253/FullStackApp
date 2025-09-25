@@ -5,10 +5,7 @@ pipeline {
         DOCKER_REGISTRY = "nouraa253"
         BACKEND_IMAGE   = "nouraa253/demo-backend:${BUILD_NUMBER}"
         FRONTEND_IMAGE  = "nouraa253/demo-frontend:${BUILD_NUMBER}"
-        NEXUS_URL       = '13.38.113.210:8081'
-        NEXUS_CRED      = 'nexus'
-        SONAR_NAME      = 'SonarQube'
-        SONAR_TOKEN     = 'sonar-token'
+        NEXUS_URL       = '3.68.158.214:8081'
         NEXUS_BACKEND = 'backend'
         NEXUS_FRONTEND = 'frontend'
     }
@@ -35,7 +32,7 @@ pipeline {
         // 3. تحليل الكود للباك إند باستخدام SonarQube
         stage('SonarQube Backend Analysis') {
             steps {
-                withSonarQubeEnv("${SONAR_NAME}") {
+                withSonarQubeEnv("SonarQube") {
                     sh 'mvn clean verify sonar:sonar \
                         -Dsonar.projectKey=fullstack-backend'
                 }
