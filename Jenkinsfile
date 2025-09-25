@@ -32,7 +32,7 @@ pipeline {
         // 3. تحليل الكود للباك إند باستخدام SonarQube
         stage('SonarQube Backend Analysis') {
             steps {
-                withSonarQubeEnv("SonarQube") {
+                withSonarQubeEnv('sonar-backend') {
                     sh 'mvn clean verify sonar:sonar \
                         -Dsonar.projectKey=fullstack-backend'
                 }
@@ -51,7 +51,7 @@ pipeline {
         // 4. تحليل الكود للفرونت إند باستخدام SonarQube
         stage('SonarQube Frontend Analysis') {
             steps {
-                withSonarQubeEnv("SonarQube") {
+                withSonarQubeEnv('sonar-frontend') {
                     sh "sonar-scanner \
                         -Dsonar.projectKey=fullstack-frontend \
                         -Dsonar.sources=."
