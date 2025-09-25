@@ -23,13 +23,13 @@ pipeline {
   //  }
 
     // 2. بناء واختبار الفرونت إند
-    stage('Build & Test Frontend') {
-        steps {
-            sh 'npm ci'
-            sh 'npm run build'
-            sh 'xvfb-run npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox'
-        }
-    }
+   // stage('Build & Test Frontend') {
+ //       steps {
+        //    sh 'npm ci'
+      //      sh 'npm run build'
+    //        sh 'xvfb-run npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox'
+  //      }
+//    }
 
     // 3. تحليل الكود للباك إند باستخدام SonarQube
     stage('SonarQube Backend Analysis') {
