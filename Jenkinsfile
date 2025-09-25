@@ -15,9 +15,10 @@ pipeline {
     // 1. بناء واختبار الباك إند
     stage('Build & Test Backend') {
         steps {
-            // تحديد المسار الصحيح لملف pom.xml باستخدام -f
-            sh 'mvn -f demo/pom.xml clean package -DskipTests=true'
-            sh 'mvn -f demo/pom.xml test'
+            dir('backend') {  // تحديد المجلد الفرعي الذي يحتوي على pom.xml
+                sh 'mvn clean package -DskipTests=true'
+                sh 'mvn test'
+            }
         }
     }
 
