@@ -13,14 +13,14 @@ pipeline {
     stages {
 
     // 1. بناء واختبار الباك إند
-   // stage('Build & Test Backend') {
-  //      steps {
-      //      dir('demo') {  // تحديد المجلد الفرعي الذي يحتوي على pom.xml
-       //         sh 'mvn clean package -DskipTests=true'
-          //      sh 'mvn test'
-      //      }
-      //  }
-  //  }
+    stage('Build & Test Backend') {
+        steps {
+            dir('demo') {  // تحديد المجلد الفرعي الذي يحتوي على pom.xml
+                sh 'mvn clean package -DskipTests=true'
+                sh 'mvn test'
+            }
+        }
+    }
 
     // 2. بناء واختبار الفرونت إند
    // stage('Build & Test Frontend') {
