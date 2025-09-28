@@ -9,8 +9,6 @@ pipeline {
     NEXUS_BACKEND   = 'backend'
     NEXUS_FRONTEND  = 'frontend'
 
-    // مستلمي الإشعارات
-    NOTIFY_TO = 'dev-team@example.com, qa@example.com'
   }
 
   stages {
@@ -141,70 +139,4 @@ pipeline {
     }
   }
 
-  // تنبيهات الإيميل
-  post {
-    success {
-      emailext(
-        to: "${env.NOTIFY_TO}",
-        subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """Build succeeded.
-
-Job: ${env.JOB_NAME}
-Build: #${env.BUILD_NUMBER}
-Branch: ${env.BRANCH_NAME}
-URL: ${env.BUILD_URL}
-
-Changes:
-${CHANGES, format="%a: %m %r%n  - %d", showPaths=true, pathFormat="  * %p"}
-"""
-      )
-    }
-    failure {
-      emailext(
-        to: "${env.NOTIFY_TO}",
-        subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """Build failed.
-
-Job: ${env.JOB_NAME}
-Build: #${env.BUILD_NUMBER}
-Stage likely failed before/at: ${env.STAGE_NAME}
-URL: ${env.BUILD_URL}
-
-Last 100 lines of log are attached.
-""",
-        attachmentsPattern: '**/target/surefire-reports/*.txt',
-        compressLog: true,
-        attachLog: true,
-        maxAttachmentSize: 10
-      )
-    }
-    unstable {
-      emailext(
-        to: "${env.NOTIFY_TO}",
-        subject: "⚠️ UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """Build is UNSTABLE (tests or quality gate issues).
-
-Job: ${env.JOB_NAME}
-Build: #${env.BUILD_NUMBER}
-URL: ${env.BUILD_URL}
-"""
-      )
-    }
-    aborted {
-      emailext(
-        to: "${env.NOTIFY_TO}",
-        subject: "⏹ ABORTED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """Build aborted.
-
-Job: ${env.JOB_NAME}
-Build: #${env.BUILD_NUMBER}
-URL: ${env.BUILD_URL}
-"""
-      )
-    }
-    always {
-      // مثال على تنبيه مختصر دائمًا (اختياري)
-      echo "Email notification evaluated."
-    }
-  }
 }
