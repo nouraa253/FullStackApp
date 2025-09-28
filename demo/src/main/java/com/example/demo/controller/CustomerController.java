@@ -4,10 +4,12 @@ import com.example.demo.entity.Customer;
 import com.example.demo.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.context.annotation.Profile;   // ← أضف هذا الاستيراد
 
 import java.util.List;
 
 @CrossOrigin
+@Profile("!test-no-db")          // ← هنا
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
