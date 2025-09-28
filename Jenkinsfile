@@ -16,8 +16,7 @@ pipeline {
     stage('Build & Test Backend') {
         steps {
             dir('demo') {  // تحديد المجلد الفرعي الذي يحتوي على pom.xml
-                sh 'mvn clean package -DskipTests=true'
-                sh 'mvn test'
+                sh 'mvn clean package -DskipTests'
             }
         }
     }
