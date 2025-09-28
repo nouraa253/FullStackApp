@@ -81,9 +81,9 @@ stage('SonarQube Frontend Analysis') {
           dir('demo') {
             nexusArtifactUploader artifacts: [
                 [
-                    artifactId: 'numeric',
+                    artifactId: 'demo',
                     classifier: '', 
-                    file: 'target/numeric-${BUILD_NUMBER}.jar',  // تأكد من تحديث المسار ليطابق البناء
+                    file: 'target/demo-${BUILD_NUMBER}.jar',  // تأكد من تحديث المسار ليطابق البناء
                     type: 'jar'
                 ]
             ],     
@@ -101,7 +101,7 @@ stage('SonarQube Frontend Analysis') {
     // 8. رفع الفرونت إند إلى Nexus
     stage('Upload Frontend to Nexus') {
         steps {
-          dir('demo') {
+          dir('frontend') {
             sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C frontend/dist .'
             nexusArtifactUploader artifacts: [
                 [
