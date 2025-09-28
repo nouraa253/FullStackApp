@@ -83,7 +83,7 @@ stage('SonarQube Frontend Analysis') {
                 [
                     artifactId: 'demo',
                     classifier: '', 
-                    file: 'jar',  // تأكد من تحديث المسار ليطابق البناء
+                    file: "target/demo-0.0.1-SNAPSHOT.jar",
                     type: 'jar'
                 ]
             ],     
