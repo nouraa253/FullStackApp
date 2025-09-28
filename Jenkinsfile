@@ -83,12 +83,12 @@ stage('SonarQube Frontend Analysis') {
                 [
                     artifactId: 'demo',
                     classifier: '', 
-                    file: 'target/demo-${BUILD_NUMBER}.jar',  // تأكد من تحديث المسار ليطابق البناء
+                    file: 'jar',  // تأكد من تحديث المسار ليطابق البناء
                     type: 'jar'
                 ]
             ],     
             credentialsId: 'Nexus', 
-            groupId: 'com.devops',
+            groupId: 'com.example',
             nexusUrl: "${NEXUS_URL}",
             nexusVersion: 'nexus3',
             protocol: 'http',
