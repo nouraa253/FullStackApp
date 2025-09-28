@@ -45,6 +45,8 @@ pipeline {
                 // تحديد المسار الصحيح لملف pom.xml باستخدام -f
                 sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
             }
+             timeout(time: 15, unit: 'MINUTES') {
+               waitForQualityGate abortPipeline: true
         }
     }
 
@@ -62,33 +64,13 @@ stage('SonarQube Frontend Analysis') {
                   -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
               """
             }
-          }
+            timeout(time: 15, unit: 'MINUTES') {
+              waitForQualityGate abortPipeline: true         
+            }
         }
       }
     }
 
-
-    // 5. التحقق من بوابة الجودة (Quality Gate) للباك إند
-    stage('Quality Gate Backend') {
-        steps {
-          dir('demo') {
-            timeout(time: 15, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true
-            }
-          }     
-        }
-    }
-
-    // 6. التحقق من بوابة الجودة (Quality Gate) للفرونت إند
-    stage('Quality Gate Frontend') {
-        steps {
-          dir('frontend') {
-            timeout(time: 15, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true
-            }
-          }     
-        }
-    }
 
     // 7. رفع الباك إند إلى Nexus
     stage('Upload Backend to Nexus') {
