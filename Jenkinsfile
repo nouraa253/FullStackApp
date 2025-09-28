@@ -12,8 +12,8 @@ pipeline {
 
     stages {
 
-             stage('Build & test'){
-                 parallel {
+     stage('Build & test'){
+        parallel {
         stage('Build & Test Frontend') {
             steps {
                 dir('frontend') {
@@ -36,8 +36,8 @@ pipeline {
                 }
             }
         }
-                 }
-             }
+    }
+     }
     // 3. تحليل الكود للباك إند باستخدام SonarQube
     stage('SonarQube Backend Analysis') {
         steps {
@@ -49,39 +49,51 @@ pipeline {
     }
 
     // 4. تحليل الكود للفرونت إند باستخدام SonarQube
-    stage('SonarQube Frontend Analysis') {
-        steps {
-                dir('frontend') {
-                    sh "sonar-scanner \
-                        -Dsonar.projectKey=fullstack-frontend \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=http://3.120.180.224:9000 \
-                        -Dsonar.login=sqp_67e5a61481f05dd349569e56560ffd7e5e47e82ds"
-                }
+stage('SonarQube Frontend Analysis') {
+      steps {
+        withSonarQubeEnv('sonar-frontend') {
+          script {
+            def scannerHome = tool 'sonar-scanner'
+            dir('frontend') {
+              sh """
+                ${scannerHome}/bin/sonar-scanner \
+                  -Dsonar.projectKey=fullstack-frontend \
+                  -Dsonar.sources=. \
+                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+              """
+            }
+          }
         }
+      }
     }
+
 
     // 5. التحقق من بوابة الجودة (Quality Gate) للباك إند
     stage('Quality Gate Backend') {
         steps {
+          dir('demo') {
             timeout(time: 15, unit: 'MINUTES') {
                 waitForQualityGate abortPipeline: true
             }
+          }     
         }
     }
 
     // 6. التحقق من بوابة الجودة (Quality Gate) للفرونت إند
     stage('Quality Gate Frontend') {
         steps {
+          dir('frontend') {
             timeout(time: 15, unit: 'MINUTES') {
                 waitForQualityGate abortPipeline: true
             }
+          }     
         }
     }
 
     // 7. رفع الباك إند إلى Nexus
     stage('Upload Backend to Nexus') {
         steps {
+          dir('demo') {
             nexusArtifactUploader artifacts: [
                 [
                     artifactId: 'numeric',
@@ -97,12 +109,14 @@ pipeline {
             protocol: 'http',
             repository: 'backend',
             version: "${BUILD_NUMBER}"
+          }
         }
     }
 
     // 8. رفع الفرونت إند إلى Nexus
     stage('Upload Frontend to Nexus') {
         steps {
+          dir('demo') {
             sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C frontend/dist .'
             nexusArtifactUploader artifacts: [
                 [
@@ -119,6 +133,7 @@ pipeline {
             protocol: 'http',
             repository: 'frontend',
             version: "${BUILD_NUMBER}"
+          }
         }
     }
 
