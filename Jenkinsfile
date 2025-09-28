@@ -52,7 +52,11 @@ pipeline {
     stage('SonarQube Frontend Analysis') {
         steps {
             withSonarQubeEnv('sonar-frontend') {
-                sh 'sonar-scanner -Dsonar.projectKey=fullstack-frontend -Dsonar.sources=. \'
+                sh '''
+                    sonar-scanner \
+                      -Dsonar.projectKey=fullstack-frontend \
+                      -Dsonar.sources=. \
+                '''
             }
         }
     }
