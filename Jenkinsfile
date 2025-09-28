@@ -12,24 +12,32 @@ pipeline {
 
     stages {
 
-    // 1. بناء واختبار الباك إند
-    stage('Build & Test Backend') {
-        steps {
-            dir('demo') {  // تحديد المجلد الفرعي الذي يحتوي على pom.xml
-                sh 'mvn clean package -DskipTests'
+             stage('Build & test'){
+                 parallel {
+        stage('Build & Test Frontend') {
+            steps {
+                dir('frontend') {
+                    sh 'node -v && npm -v'
+                    sh 'npm ci'
+                    sh 'xvfb-run -a npx ng test --watch=false --browsers=ChromeHeadless'
+                    sh 'npm run build'
+                }
             }
         }
-    }
 
-    // 2. بناء واختبار الفرونت إند
-   // stage('Build & Test Frontend') {
- //       steps {
-        //    sh 'npm ci'
-      //      sh 'npm run build'
-    //        sh 'xvfb-run npx ng test --watch=false --browsers=ChromeHeadlessNoSandbox'
-  //      }
-//    }
-
+        stage('Build & Test Backend') {
+            environment {
+                SPRING_PROFILES_ACTIVE = 'test-no-db'
+            }
+              steps {
+                dir('demo'){
+                sh 'mvn clean package -DskipTests=true'
+                sh 'mvn test'
+                }
+            }
+        }
+                 }
+             }
     // 3. تحليل الكود للباك إند باستخدام SonarQube
     stage('SonarQube Backend Analysis') {
         steps {
