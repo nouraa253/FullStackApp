@@ -102,12 +102,12 @@ stage('SonarQube Frontend Analysis') {
     stage('Upload Frontend to Nexus') {
         steps {
           dir('frontend') {
-            sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C frontend/dist .'
+            sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C dist .'
             nexusArtifactUploader artifacts: [
                 [
                     artifactId: 'frontend',
                     classifier: '',
-                    file: 'frontend/dist/frontend-${BUILD_NUMBER}.tgz',
+                    file: 'frontend-${BUILD_NUMBER}.tgz',
                     type: 'tgz'
                 ]
             ],
