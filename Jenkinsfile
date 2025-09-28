@@ -51,11 +51,12 @@ pipeline {
     // 4. تحليل الكود للفرونت إند باستخدام SonarQube
     stage('SonarQube Frontend Analysis') {
         steps {
-              sh "sonar-scanner \
-                  -Dsonar.projectKey=fullstack-frontend \
-                  -Dsonar.sources=. \
-                  -Dsonar.host.url=http://3.120.180.224:9000 \
-                  -Dsonar.login=sqp_67e5a61481f05dd349569e56560ffd7e5e47e82ds"
+                dir('frontend') {
+                    sh "sonar-scanner \
+                        -Dsonar.projectKey=fullstack-frontend \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://3.120.180.224:9000 \
+                        -Dsonar.login=sqp_67e5a61481f05dd349569e56560ffd7e5e47e82ds"
         }
     }
 
