@@ -9,313 +9,202 @@ pipeline {
     NEXUS_BACKEND   = 'backend'
     NEXUS_FRONTEND  = 'frontend'
 
-    // قيم مبدئية لحالات الستيدجات (للتقرير)
-    STAGE_FE_BUILD  = 'NOT_RUN'
-    STAGE_BE_BUILD  = 'NOT_RUN'
-    STAGE_SONAR_BE  = 'NOT_RUN'
-    STAGE_QG_BE     = 'NOT_RUN'
-    STAGE_SONAR_FE  = 'NOT_RUN'
-    STAGE_QG_FE     = 'NOT_RUN'
-    STAGE_NEXUS_BE  = 'NOT_RUN'
-    STAGE_NEXUS_FE  = 'NOT_RUN'
-    STAGE_DOCKER_B  = 'NOT_RUN'
-    STAGE_DOCKER_P  = 'NOT_RUN'
-    STAGE_DEPLOY    = 'NOT_RUN'
+    // مستلمي الإشعارات
+    NOTIFY_TO = 'dev-team@example.com, qa@example.com'
   }
 
   stages {
-
-    stage('Build & test') {
+    stage('Build & test'){
       parallel {
-
         stage('Build & Test Frontend') {
           steps {
-            script {
-              try {
-                dir('frontend') {
-                  sh 'node -v && npm -v'
-                  sh 'npm ci'
-                  sh 'xvfb-run -a npx ng test --watch=false --browsers=ChromeHeadless'
-                  sh 'npm run build'
-                }
-                env.STAGE_FE_BUILD = 'SUCCESS'
-              } catch (err) {
-                env.STAGE_FE_BUILD = 'FAILURE'
-                throw err
-              }
+            dir('frontend') {
+              sh 'node -v && npm -v'
+              sh 'npm ci'
+              sh 'xvfb-run -a npx ng test --watch=false --browsers=ChromeHeadless'
+              sh 'npm run build'
             }
           }
         }
-
         stage('Build & Test Backend') {
-          environment {
-            SPRING_PROFILES_ACTIVE = 'test-no-db'
-          }
+          environment { SPRING_PROFILES_ACTIVE = 'test-no-db' }
           steps {
-            script {
-              try {
-                dir('demo') {
-                  sh 'mvn clean package -DskipTests=true'
-                  sh 'mvn test'
-                }
-                env.STAGE_BE_BUILD = 'SUCCESS'
-              } catch (err) {
-                env.STAGE_BE_BUILD = 'FAILURE'
-                throw err
-              }
+            dir('demo'){
+              sh 'mvn clean package -DskipTests=true'
+              sh 'mvn test'
             }
           }
         }
-
       }
     }
 
-    // 3) SonarQube Backend
+    // 3. تحليل الكود للباك إند باستخدام SonarQube
     stage('SonarQube Backend Analysis') {
       steps {
-        script {
-          try {
-            withSonarQubeEnv('sonar-backend') {
-              sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
-            }
-            env.STAGE_SONAR_BE = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_SONAR_BE = 'FAILURE'
-            throw err
-          }
+        withSonarQubeEnv('sonar-backend') {
+          sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
+        }
+        timeout(time: 15, unit: 'MINUTES') {
+          waitForQualityGate abortPipeline: true
         }
       }
     }
 
-    stage('Quality Gate Backend') {
-      steps {
-        script {
-          try {
-            timeout(time: 15, unit: 'MINUTES') {
-              waitForQualityGate abortPipeline: true
-            }
-            env.STAGE_QG_BE = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_QG_BE = 'FAILURE'
-            throw err
-          }
-        }
-      }
-    }
-
-    // 4) SonarQube Frontend
+    // 4. تحليل الكود للفرونت إند باستخدام SonarQube
     stage('SonarQube Frontend Analysis') {
       steps {
-        script {
-          try {
-            withSonarQubeEnv('sonar-frontend') {
-              def scannerHome = tool 'sonar-scanner'  // لازم تكون مضافة كـ Global Tool
-              dir('frontend') {
-                sh """
-                  ${scannerHome}/bin/sonar-scanner \
-                    -Dsonar.projectKey=fullstack-frontend \
-                    -Dsonar.sources=. \
-                    -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-                """
-              }
+        withSonarQubeEnv('sonar-frontend') {
+          script {
+            def scannerHome = tool 'sonar-scanner'
+            dir('frontend') {
+              sh """
+                ${scannerHome}/bin/sonar-scanner \
+                  -Dsonar.projectKey=fullstack-frontend \
+                  -Dsonar.sources=. \
+                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+              """
             }
-            env.STAGE_SONAR_FE = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_SONAR_FE = 'FAILURE'
-            throw err
-          }
-        }
-      }
-    }
-
-    stage('Quality Gate Frontend') {
-      steps {
-        script {
-          try {
             timeout(time: 15, unit: 'MINUTES') {
               waitForQualityGate abortPipeline: true
             }
-            env.STAGE_QG_FE = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_QG_FE = 'FAILURE'
-            throw err
           }
         }
       }
     }
 
-    // 7) Upload Backend to Nexus
+    // 7. رفع الباك إند إلى Nexus
     stage('Upload Backend to Nexus') {
       steps {
-        script {
-          try {
-            dir('demo') {
-              nexusArtifactUploader artifacts: [[
-                artifactId: 'demo',
-                classifier: '',
-                file: "target/demo-0.0.1-SNAPSHOT.jar",
-                type: 'jar'
-              ]],
-              credentialsId: 'Nexus',
-              groupId: 'com.example',
-              nexusUrl: "${NEXUS_URL}",
-              nexusVersion: 'nexus3',
-              protocol: 'http',
-              repository: "${NEXUS_BACKEND}",
-              version: "${BUILD_NUMBER}"
-            }
-            env.STAGE_NEXUS_BE = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_NEXUS_BE = 'FAILURE'
-            throw err
-          }
+        dir('demo') {
+          nexusArtifactUploader artifacts: [[
+            artifactId: 'demo',
+            classifier: '',
+            file: "target/demo-0.0.1-SNAPSHOT.jar",
+            type: 'jar'
+          ]],
+          credentialsId: 'Nexus',
+          groupId: 'com.example',
+          nexusUrl: "${NEXUS_URL}",
+          nexusVersion: 'nexus3',
+          protocol: 'http',
+          repository: 'backend',
+          version: "${BUILD_NUMBER}"
         }
       }
     }
 
-    // 8) Upload Frontend to Nexus
+    // 8. رفع الفرونت إند إلى Nexus
     stage('Upload Frontend to Nexus') {
       steps {
-        script {
-          try {
-            dir('frontend') {
-              // ينشئ أرشيف من محتويات dist
-              sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C dist .'
-
-              nexusArtifactUploader artifacts: [[
-                artifactId: 'frontend',
-                classifier: '',
-                file: "frontend-${BUILD_NUMBER}.tgz",
-                type: 'tgz'
-              ]],
-              credentialsId: 'Nexus',
-              groupId: 'com.example.frontend',
-              nexusUrl: "${NEXUS_URL}",
-              nexusVersion: 'nexus3',
-              protocol: 'http',
-              repository: "${NEXUS_FRONTEND}",
-              version: "${BUILD_NUMBER}"
-            }
-            env.STAGE_NEXUS_FE = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_NEXUS_FE = 'FAILURE'
-            throw err
-          }
+        dir('frontend') {
+          sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C dist .'
+          nexusArtifactUploader artifacts: [[
+            artifactId: 'frontend',
+            classifier: '',
+            file: "frontend-${BUILD_NUMBER}.tgz",
+            type: 'tgz'
+          ]],
+          credentialsId: 'Nexus',
+          groupId: 'com.example.frontend',
+          nexusUrl: "${NEXUS_URL}",
+          nexusVersion: 'nexus3',
+          protocol: 'http',
+          repository: 'frontend',
+          version: "${BUILD_NUMBER}"
         }
       }
     }
 
-    // 9) Docker Build
+    // 9. بناء الحاويات Docker
     stage('Docker Build') {
       steps {
-        script {
-          try {
-            withCredentials([usernamePassword(
-              credentialsId: 'docker',
-              usernameVariable: 'DOCKER_USERNAME',
-              passwordVariable: 'DOCKER_PASSWORD'
-            )]) {
-              sh 'ansible-playbook -i ansible/inventory.ini ansible/build.yml'
-            }
-            env.STAGE_DOCKER_B = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_DOCKER_B = 'FAILURE'
-            throw err
-          }
+        withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+          sh 'ansible-playbook -i ansible/inventory.ini ansible/build.yml'
         }
       }
     }
 
-    // 10) Docker Push
+    // 10. دفع الحاويات Docker باستخدام Ansible
     stage('Docker Push using Ansible') {
       steps {
-        script {
-          try {
-            withCredentials([usernamePassword(
-              credentialsId: 'docker',
-              usernameVariable: 'DOCKER_USERNAME',
-              passwordVariable: 'DOCKER_PASSWORD'
-            )]) {
-              sh 'ansible-playbook -i ansible/inventory.ini ansible/push.yml'
-            }
-            env.STAGE_DOCKER_P = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_DOCKER_P = 'FAILURE'
-            throw err
-          }
+        withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+          sh 'ansible-playbook -i ansible/inventory.ini ansible/push.yml'
         }
       }
     }
 
-    // 11) Deploy
+    // 11. نشر إلى Kubernetes
     stage('Deploy to Kubernetes') {
       steps {
-        script {
-          try {
-            sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
-            env.STAGE_DEPLOY = 'SUCCESS'
-          } catch (err) {
-            env.STAGE_DEPLOY = 'FAILURE'
-            throw err
-          }
-        }
+        sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
       }
     }
-  } // end stages
+  }
 
+  // تنبيهات الإيميل
   post {
+    success {
+      emailext(
+        to: "${env.NOTIFY_TO}",
+        subject: "✅ SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """Build succeeded.
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+Branch: ${env.BRANCH_NAME}
+URL: ${env.BUILD_URL}
+
+Changes:
+${CHANGES, format="%a: %m %r%n  - %d", showPaths=true, pathFormat="  * %p"}
+"""
+      )
+    }
+    failure {
+      emailext(
+        to: "${env.NOTIFY_TO}",
+        subject: "❌ FAILURE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """Build failed.
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+Stage likely failed before/at: ${env.STAGE_NAME}
+URL: ${env.BUILD_URL}
+
+Last 100 lines of log are attached.
+""",
+        attachmentsPattern: '**/target/surefire-reports/*.txt',
+        compressLog: true,
+        attachLog: true,
+        maxAttachmentSize: 10
+      )
+    }
+    unstable {
+      emailext(
+        to: "${env.NOTIFY_TO}",
+        subject: "⚠️ UNSTABLE: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """Build is UNSTABLE (tests or quality gate issues).
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+URL: ${env.BUILD_URL}
+"""
+      )
+    }
+    aborted {
+      emailext(
+        to: "${env.NOTIFY_TO}",
+        subject: "⏹ ABORTED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """Build aborted.
+
+Job: ${env.JOB_NAME}
+Build: #${env.BUILD_NUMBER}
+URL: ${env.BUILD_URL}
+"""
+      )
+    }
     always {
-      script {
-        def jobName = env.JOB_NAME
-        def buildNumber = env.BUILD_NUMBER
-        def pipelineStatus = currentBuild.currentResult
-        def pipelineStatusUpper = pipelineStatus.toUpperCase()
-        def bannerColor = pipelineStatusUpper == 'SUCCESS' ? 'green' : 'red'
-
-        def row = { name, val ->
-          return "<tr><td>${name}</td><td style='color:${val=="SUCCESS"?"green":(val=="FAILURE"?"red":"#999")}'>${val}</td></tr>"
-        }
-
-        def stageTable = """
-          <table border='1' cellpadding='5' cellspacing='0' style='border-collapse: collapse;'>
-            <tr><th>Stage</th><th>Status</th></tr>
-            ${row('FE Build & Test', env.STAGE_FE_BUILD)}
-            ${row('BE Build & Test', env.STAGE_BE_BUILD)}
-            ${row('Sonar BE',       env.STAGE_SONAR_BE)}
-            ${row('Quality Gate BE',env.STAGE_QG_BE)}
-            ${row('Sonar FE',       env.STAGE_SONAR_FE)}
-            ${row('Quality Gate FE',env.STAGE_QG_FE)}
-            ${row('Upload BE Nexus',env.STAGE_NEXUS_BE)}
-            ${row('Upload FE Nexus',env.STAGE_NEXUS_FE)}
-            ${row('Docker Build',   env.STAGE_DOCKER_B)}
-            ${row('Docker Push',    env.STAGE_DOCKER_P)}
-            ${row('Deploy',         env.STAGE_DEPLOY)}
-          </table>
-        """
-
-        def body = """<html>
-          <body>
-            <div style="border: 4px solid ${bannerColor}; padding: 10px;">
-              <h2>${jobName} - Build ${buildNumber}</h2>
-              <div style="background-color: ${bannerColor}; padding: 10px;">
-                <h3 style="color: white;">Pipeline Status: ${pipelineStatusUpper}</h3>
-              </div>
-              <p>Check the <a href="${env.BUILD_URL}">console output</a>.</p>
-              <h3>Stage Summary</h3>
-              ${stageTable}
-            </div>
-          </body>
-        </html>"""
-
-        emailext(
-          subject: "${jobName} - Build ${buildNumber} - ${pipelineStatusUpper}",
-          body: body,
-          to: 'noora1sultan2r@gmail.com',
-          from: 'jenkins@example.com',
-          replyTo: 'jenkins@example.com',
-          mimeType: 'text/html'
-        )
-      }
+      // مثال على تنبيه مختصر دائمًا (اختياري)
+      echo "Email notification evaluated."
     }
   }
 }
