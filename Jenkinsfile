@@ -36,8 +36,9 @@ pipeline {
                 }
             }
         }
-    }
+       }
      }
+        
     // 3. تحليل الكود للباك إند باستخدام SonarQube
     stage('SonarQube Backend Analysis') {
         steps {
@@ -48,6 +49,7 @@ pipeline {
              timeout(time: 15, unit: 'MINUTES') {
                waitForQualityGate abortPipeline: true
         }
+    }
     }
 
     // 4. تحليل الكود للفرونت إند باستخدام SonarQube
@@ -70,6 +72,7 @@ stage('SonarQube Frontend Analysis') {
         }
       }
     }
+}
 
 
     // 7. رفع الباك إند إلى Nexus
