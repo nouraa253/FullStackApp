@@ -56,7 +56,6 @@ pipeline {
                   -Dsonar.sources=. \
                   -Dsonar.host.url=http://3.120.180.224:9000 \
                   -Dsonar.login=sqp_67e5a61481f05dd349569e56560ffd7e5e47e82ds"
-            }
         }
     }
 
