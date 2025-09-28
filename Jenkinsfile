@@ -55,7 +55,7 @@ pipeline {
                 sh '''
                     sonar-scanner \
                       -Dsonar.projectKey=fullstack-frontend \
-                      -Dsonar.sources=. \
+                      -Dsonar.sources=.
                 '''
             }
         }
