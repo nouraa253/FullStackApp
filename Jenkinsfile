@@ -36,75 +36,81 @@ pipeline {
       }
     }
 
-    stage('SonarQube Backend Analysis') {
-      steps {
-        withSonarQubeEnv('sonar-backend') {
-          sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
-        }
-        timeout(time: 15, unit: 'MINUTES') {
-          waitForQualityGate abortPipeline: true
-        }
-      }
-    }
-
-    stage('SonarQube Frontend Analysis') {
-      steps {
-        withSonarQubeEnv('sonar-frontend') {
-          script {
-            def scannerHome = tool 'sonar-scanner'
-            dir('frontend') {
-              sh """
-                ${scannerHome}/bin/sonar-scanner \
-                  -Dsonar.projectKey=fullstack-frontend \
-                  -Dsonar.sources=. \
-                  -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-              """
+    stage('SonarQube Analysis') {
+      parallel {
+        stage('SonarQube Backend Analysis') {
+          steps {
+            withSonarQubeEnv('sonar-backend') {
+              sh 'mvn -f demo/pom.xml clean verify sonar:sonar -Dsonar.projectKey=fullstack-backend'
             }
             timeout(time: 15, unit: 'MINUTES') {
               waitForQualityGate abortPipeline: true
             }
           }
         }
-      }
-    }
-
-    stage('Upload Backend to Nexus') {
-      steps {
-        dir('demo') {
-          nexusArtifactUploader artifacts: [[
-            artifactId: 'demo',
-            classifier: '',
-            file: "target/demo-0.0.1-SNAPSHOT.jar",
-            type: 'jar'
-          ]],
-          credentialsId: 'Nexus',
-          groupId: 'com.example',
-          nexusUrl: "${NEXUS_URL}",
-          nexusVersion: 'nexus3',
-          protocol: 'http',
-          repository: 'backend',
-          version: "${BUILD_NUMBER}"
+        stage('SonarQube Frontend Analysis') {
+          steps {
+            withSonarQubeEnv('sonar-frontend') {
+              script {
+                def scannerHome = tool 'sonar-scanner'
+                dir('frontend') {
+                  sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                      -Dsonar.projectKey=fullstack-frontend \
+                      -Dsonar.sources=. \
+                      -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                  """
+                }
+                timeout(time: 15, unit: 'MINUTES') {
+                  waitForQualityGate abortPipeline: true
+                }
+              }
+            }
+          }
         }
       }
     }
 
-    stage('Upload Frontend to Nexus') {
-      steps {
-        dir('frontend') {
-          sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C dist .'
-          nexusArtifactUploader artifacts: [[
-            artifactId: 'frontend',
-            classifier: '',
-            file: "frontend-${BUILD_NUMBER}.tgz",
-            type: 'tgz'
-          ]],
-          credentialsId: 'Nexus',
-          groupId: 'com.example.frontend',
-          nexusUrl: "${NEXUS_URL}",
-          nexusVersion: 'nexus3',
-          protocol: 'http',
-          repository: 'frontend',
-          version: "${BUILD_NUMBER}"
+    stage('Upload to Nexus') {
+      parallel {
+        stage('Upload Backend to Nexus') {
+          steps {
+            dir('demo') {
+              nexusArtifactUploader artifacts: [[
+                artifactId: 'demo',
+                classifier: '',
+                file: "target/demo-0.0.1-SNAPSHOT.jar",
+                type: 'jar'
+              ]],
+              credentialsId: 'Nexus',
+              groupId: 'com.example',
+              nexusUrl: "${NEXUS_URL}",
+              nexusVersion: 'nexus3',
+              protocol: 'http',
+              repository: 'backend',
+              version: "${BUILD_NUMBER}"
+            }
+          }
+        }
+        stage('Upload Frontend to Nexus') {
+          steps {
+            dir('frontend') {
+              sh 'tar -czf frontend-${BUILD_NUMBER}.tgz -C dist .'
+              nexusArtifactUploader artifacts: [[
+                artifactId: 'frontend',
+                classifier: '',
+                file: "frontend-${BUILD_NUMBER}.tgz",
+                type: 'tgz'
+              ]],
+              credentialsId: 'Nexus',
+              groupId: 'com.example.frontend',
+              nexusUrl: "${NEXUS_URL}",
+              nexusVersion: 'nexus3',
+              protocol: 'http',
+              repository: 'frontend',
+              version: "${BUILD_NUMBER}"
+            }
+          }
         }
       }
     }
@@ -135,11 +141,27 @@ pipeline {
   post {
     always {
       emailext (
-        subject: "Build ${currentBuild.currentResult}: ${currentBuild.fullDisplayName}",
+        subject: "Build Status: ${currentBuild.currentResult} - ${currentBuild.fullDisplayName}",
         body: """
-          Build Status: ${currentBuild.currentResult}
-          Project: ${env.JOB_NAME}
-          Build URL: ${env.BUILD_URL}
+          <html>
+          <body>
+            <table style="width:100%; border: 1px solid #ddd; border-collapse: collapse;">
+              <tr style="background-color: #f2f2f2;">
+                <td style="padding: 8px; font-weight: bold;">Build Status:</td>
+                <td style="padding: 8px;">${currentBuild.currentResult}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; font-weight: bold;">Project:</td>
+                <td style="padding: 8px;">${env.JOB_NAME}</td>
+              </tr>
+              <tr style="background-color: #f2f2f2;">
+                <td style="padding: 8px; font-weight: bold;">Build URL:</td>
+                <td style="padding: 8px;"><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td>
+              </tr>
+            </table>
+            <p style="font-size: 16px;">For more details, please visit the build page.</p>
+          </body>
+          </html>
         """,
         to: "${EMAIL_RECIPIENTS}"
       )
@@ -148,9 +170,25 @@ pipeline {
       emailext (
         subject: "Build Success: ${currentBuild.fullDisplayName}",
         body: """
-          Build Success: ${currentBuild.fullDisplayName}
-          Project: ${env.JOB_NAME}
-          Build URL: ${env.BUILD_URL}
+          <html>
+          <body style="font-family: Arial, sans-serif;">
+            <table style="width:100%; border: 1px solid #ddd; border-collapse: collapse;">
+              <tr style="background-color: #d4edda;">
+                <td style="padding: 8px; font-weight: bold;">Build Success:</td>
+                <td style="padding: 8px;">${currentBuild.fullDisplayName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; font-weight: bold;">Project:</td>
+                <td style="padding: 8px;">${env.JOB_NAME}</td>
+              </tr>
+              <tr style="background-color: #d4edda;">
+                <td style="padding: 8px; font-weight: bold;">Build URL:</td>
+                <td style="padding: 8px;"><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td>
+              </tr>
+            </table>
+            <p style="font-size: 16px; color: green;">Congratulations! The build was successful.</p>
+          </body>
+          </html>
         """,
         to: "${EMAIL_RECIPIENTS}"
       )
@@ -159,9 +197,25 @@ pipeline {
       emailext (
         subject: "Build Failure: ${currentBuild.fullDisplayName}",
         body: """
-          Build Failed: ${currentBuild.fullDisplayName}
-          Project: ${env.JOB_NAME}
-          Build URL: ${env.BUILD_URL}
+          <html>
+          <body style="font-family: Arial, sans-serif;">
+            <table style="width:100%; border: 1px solid #ddd; border-collapse: collapse;">
+              <tr style="background-color: #f8d7da;">
+                <td style="padding: 8px; font-weight: bold;">Build Failed:</td>
+                <td style="padding: 8px;">${currentBuild.fullDisplayName}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px; font-weight: bold;">Project:</td>
+                <td style="padding: 8px;">${env.JOB_NAME}</td>
+              </tr>
+              <tr style="background-color: #f8d7da;">
+                <td style="padding: 8px; font-weight: bold;">Build URL:</td>
+                <td style="padding: 8px;"><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td>
+              </tr>
+            </table>
+            <p style="font-size: 16px; color: red;">Unfortunately, the build has failed. Please check the build logs for more information.</p>
+          </body>
+          </html>
         """,
         to: "${EMAIL_RECIPIENTS}"
       )
