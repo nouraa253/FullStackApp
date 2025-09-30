@@ -8,7 +8,7 @@ pipeline {
     NEXUS_URL       = '3.64.13.110:8081'
     NEXUS_BACKEND   = 'backend'
     NEXUS_FRONTEND  = 'frontend'
-
+    EMAIL_RECIPIENTS = 'noora1sultan2r@gmail.com'  // Replace with actual email
   }
 
   stages {
@@ -36,7 +36,6 @@ pipeline {
       }
     }
 
-    // 3. تحليل الكود للباك إند باستخدام SonarQube
     stage('SonarQube Backend Analysis') {
       steps {
         withSonarQubeEnv('sonar-backend') {
@@ -48,7 +47,6 @@ pipeline {
       }
     }
 
-    // 4. تحليل الكود للفرونت إند باستخدام SonarQube
     stage('SonarQube Frontend Analysis') {
       steps {
         withSonarQubeEnv('sonar-frontend') {
@@ -70,7 +68,6 @@ pipeline {
       }
     }
 
-    // 7. رفع الباك إند إلى Nexus
     stage('Upload Backend to Nexus') {
       steps {
         dir('demo') {
@@ -91,7 +88,6 @@ pipeline {
       }
     }
 
-    // 8. رفع الفرونت إند إلى Nexus
     stage('Upload Frontend to Nexus') {
       steps {
         dir('frontend') {
@@ -113,7 +109,6 @@ pipeline {
       }
     }
 
-    // 9. بناء الحاويات Docker
     stage('Docker Build') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -122,7 +117,6 @@ pipeline {
       }
     }
 
-    // 10. دفع الحاويات Docker باستخدام Ansible
     stage('Docker Push using Ansible') {
       steps {
         withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
@@ -131,7 +125,6 @@ pipeline {
       }
     }
 
-    // 11. نشر إلى Kubernetes
     stage('Deploy to Kubernetes') {
       steps {
         sh 'ansible-playbook -i ansible/inventory.ini ansible/deploy.yml'
@@ -139,4 +132,39 @@ pipeline {
     }
   }
 
+  post {
+    always {
+      emailext (
+        subject: "Build ${currentBuild.currentResult}: ${currentBuild.fullDisplayName}",
+        body: """
+          Build Status: ${currentBuild.currentResult}
+          Project: ${env.JOB_NAME}
+          Build URL: ${env.BUILD_URL}
+        """,
+        to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+    success {
+      emailext (
+        subject: "Build Success: ${currentBuild.fullDisplayName}",
+        body: """
+          Build Success: ${currentBuild.fullDisplayName}
+          Project: ${env.JOB_NAME}
+          Build URL: ${env.BUILD_URL}
+        """,
+        to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+    failure {
+      emailext (
+        subject: "Build Failure: ${currentBuild.fullDisplayName}",
+        body: """
+          Build Failed: ${currentBuild.fullDisplayName}
+          Project: ${env.JOB_NAME}
+          Build URL: ${env.BUILD_URL}
+        """,
+        to: "${EMAIL_RECIPIENTS}"
+      )
+    }
+  }
 }
