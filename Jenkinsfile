@@ -8,7 +8,6 @@ pipeline {
     NEXUS_URL       = '3.64.13.110:8081'
     NEXUS_BACKEND   = 'backend'
     NEXUS_FRONTEND  = 'frontend'
-    EMAIL_RECIPIENTS = 'noora1sultan2r@gmail.com'  // Replace with actual email
   }
 
   stages {
@@ -138,87 +137,39 @@ pipeline {
     }
   }
 
-  post {
-    always {
-      emailext (
-        subject: "Build Status: ${currentBuild.currentResult} - ${currentBuild.fullDisplayName}",
-        body: """
-          <html>
-          <body>
-            <table style="width:100%; border: 1px solid #ddd; border-collapse: collapse;">
-              <tr style="background-color: #f2f2f2;">
-                <td style="padding: 8px; font-weight: bold;">Build Status:</td>
-                <td style="padding: 8px;">${currentBuild.currentResult}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; font-weight: bold;">Project:</td>
-                <td style="padding: 8px;">${env.JOB_NAME}</td>
-              </tr>
-              <tr style="background-color: #f2f2f2;">
-                <td style="padding: 8px; font-weight: bold;">Build URL:</td>
-                <td style="padding: 8px;"><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td>
-              </tr>
-            </table>
-            <p style="font-size: 16px;">For more details, please visit the build page.</p>
-          </body>
-          </html>
-        """,
-        to: "${EMAIL_RECIPIENTS}"
-      )
+    post {
+        always {
+            script {
+                def jobName = env.JOB_NAME
+                def buildNumber = env.BUILD_NUMBER
+                def pipelineStatus = currentBuild.currentResult
+                def pipelineStatusUpper = pipelineStatus.toUpperCase()
+                def bannerColor = pipelineStatusUpper == 'SUCCESS' ? 'green' : 'red'
+
+                def body = """<html>
+                    <body>
+                        <div style="border: 4px solid ${bannerColor}; padding: 10px;">
+                            <h2>${jobName} - Build ${buildNumber}</h2>
+                            <div style="background-color: ${bannerColor}; padding: 10px;">
+                                <h3 style="color: white;">Pipeline Status: ${pipelineStatusUpper}</h3>
+                            </div>
+                            <p>Check the <a href="${env.BUILD_URL}">console output</a>.</p>
+                            <p style="font-size: 16px;">The build has finished with a <strong>${pipelineStatusUpper}</strong> status.</p>
+
+                            
+                        </div>
+                    </body>
+                </html>"""
+
+                emailext (
+                    subject: "${jobName} - Build ${buildNumber} - ${pipelineStatusUpper}",
+                    body: body,
+                    to: 'noora1sultan2r@gmail.com',
+                    from: 'jenkins@example.com',
+                    replyTo: 'jenkins@example.com',
+                    mimeType: 'text/html'
+                )
+            }
+        }
     }
-    success {
-      emailext (
-        subject: "Build Success: ${currentBuild.fullDisplayName}",
-        body: """
-          <html>
-          <body style="font-family: Arial, sans-serif;">
-            <table style="width:100%; border: 1px solid #ddd; border-collapse: collapse;">
-              <tr style="background-color: #d4edda;">
-                <td style="padding: 8px; font-weight: bold;">Build Success:</td>
-                <td style="padding: 8px;">${currentBuild.fullDisplayName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; font-weight: bold;">Project:</td>
-                <td style="padding: 8px;">${env.JOB_NAME}</td>
-              </tr>
-              <tr style="background-color: #d4edda;">
-                <td style="padding: 8px; font-weight: bold;">Build URL:</td>
-                <td style="padding: 8px;"><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td>
-              </tr>
-            </table>
-            <p style="font-size: 16px; color: green;">Congratulations! The build was successful.</p>
-          </body>
-          </html>
-        """,
-        to: "${EMAIL_RECIPIENTS}"
-      )
-    }
-    failure {
-      emailext (
-        subject: "Build Failure: ${currentBuild.fullDisplayName}",
-        body: """
-          <html>
-          <body style="font-family: Arial, sans-serif;">
-            <table style="width:100%; border: 1px solid #ddd; border-collapse: collapse;">
-              <tr style="background-color: #f8d7da;">
-                <td style="padding: 8px; font-weight: bold;">Build Failed:</td>
-                <td style="padding: 8px;">${currentBuild.fullDisplayName}</td>
-              </tr>
-              <tr>
-                <td style="padding: 8px; font-weight: bold;">Project:</td>
-                <td style="padding: 8px;">${env.JOB_NAME}</td>
-              </tr>
-              <tr style="background-color: #f8d7da;">
-                <td style="padding: 8px; font-weight: bold;">Build URL:</td>
-                <td style="padding: 8px;"><a href="${env.BUILD_URL}">${env.BUILD_URL}</a></td>
-              </tr>
-            </table>
-            <p style="font-size: 16px; color: red;">Unfortunately, the build has failed. Please check the build logs for more information.</p>
-          </body>
-          </html>
-        """,
-        to: "${EMAIL_RECIPIENTS}"
-      )
-    }
-  }
 }
