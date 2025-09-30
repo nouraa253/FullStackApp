@@ -26,6 +26,14 @@
         owner: ubuntu
         group: ubuntu
         mode: '0644'
+        
+    - name: Copy pv manifest to target server
+      copy:
+        src: "{{ repo_root }}/k8s/mysql-pv.yaml"
+        dest: /home/ubuntu/mysql-pv.yaml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
     # ===== نسخ mysql (ثابت ما فيه متغيرات)
     - name: Copy mysql manifest to target server
       copy:
@@ -61,6 +69,11 @@
     # ===== MySQL
     - name: Apply namespace
       command: kubectl apply -f /home/ubuntu/namespace.yaml
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+        
+    - name: Apply pv
+      command: kubectl apply -f /home/ubuntu/mysql-pv.yaml
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
         
