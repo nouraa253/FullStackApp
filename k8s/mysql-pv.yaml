@@ -2,12 +2,11 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: my-pv
-  namespace: fullstack  # تأكد من أنه في نفس الـ namespace إذا كنت تستخدم namespace محدد
+  namespace: fullstack
 spec:
   capacity:
-    storage: 1Gi  # يجب أن يتطابق مع حجم الـ PVC
+    storage: 1Gi  
   accessModes:
-    - ReadWriteOnce  # يجب أن يتطابق مع النمط الذي طلبته في الـ PVC
-  persistentVolumeReclaimPolicy: Retain  # سياسة عند حذف الـ PVC (يمكنك تغييرها حسب احتياجك)
+    - ReadWriteOnce  
   hostPath:
-    path: /mnt/data  # هذا هو المسار الفعلي للتخزين على الخادم (اختياري حسب تخزينك)
+    path: /tmp/data 
