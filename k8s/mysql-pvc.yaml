@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: m-pvc
+  name: new-pvc
   namespace: fullstack
 spec:
   accessModes: ["ReadWriteOnce"]
