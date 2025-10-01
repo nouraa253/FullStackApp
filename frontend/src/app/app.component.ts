@@ -8,7 +8,7 @@ import { Customer, CustomerService } from './customer.service';
 })
 export class AppComponent {
   title = 'frontend';
-  darkMode = false;  // الوضع الداكن
+  darkMode = false;
   customers: Customer[] = [];
   newCustomer: Customer = { name: '', email: '' };
 
