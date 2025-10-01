@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: pv-mysql
+  name: MySQL-pv
   namespace: fullstack
 spec:
   accessModes: ["ReadWriteOnce"]
