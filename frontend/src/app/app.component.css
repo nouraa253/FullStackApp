@@ -13,11 +13,11 @@ body {
   padding: 20px;
 }
 
-h1.main-title {
+h2.section-title {
   text-align: center;
-  font-size: 2.5rem;
-  color: #4e4e4e;
-  margin-bottom: 20px;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 30px;
 }
 
 /* Navbar */
@@ -37,26 +37,12 @@ h1.main-title {
   font-weight: bold;
 }
 
-.toggle-btn {
-  padding: 10px 20px;
-  font-size: 1rem;
-  background-color: #ff6b6b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.toggle-btn:hover {
-  background-color: #ff4e4e;
-}
 
 /* Add Customer Form */
-.add-customer-form {
+.add-customer {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 .form-container {
@@ -67,12 +53,6 @@ h1.main-title {
   max-width: 400px;
   width: 100%;
   text-align: center;
-}
-
-.form-title {
-  font-size: 1.5rem;
-  color: #354f84;
-  margin-bottom: 20px;
 }
 
 label {
@@ -98,7 +78,7 @@ input[type="email"]:focus {
   border-color: #354f84;
 }
 
-.btn-add {
+.add-customer-btn {
   width: 100%;
   padding: 12px;
   background-color: #354f84;
@@ -107,10 +87,10 @@ input[type="email"]:focus {
   border-radius: 5px;
   font-size: 1.2rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
-.btn-add:hover {
+.add-customer-btn:hover {
   background-color: #2e3f6f;
 }
 
@@ -130,7 +110,7 @@ input[type="email"]:focus {
   text-align: center;
   border-radius: 10px;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .customer-card:hover {
@@ -150,16 +130,16 @@ input[type="email"]:focus {
   margin-bottom: 20px;
 }
 
-.btn-delete {
+.delete-btn {
   padding: 8px 16px;
   background-color: #ff6b6b;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s ease;
 }
 
-.btn-delete:hover {
+.delete-btn:hover {
   background-color: #ff4e4e;
 }
