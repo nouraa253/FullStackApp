@@ -5,6 +5,30 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CustomerService, Customer } from './customer.service';
 import { of } from 'rxjs';
 
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatCardModule } from '@angular/material/card';
+
+@NgModule({
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    HttpClientModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatCardModule
+  ],
+})
+export class AppModule {}
+
+
 describe('AppComponent', () => {
   const customerServiceMock = {
     getCustomers: () => of([] as Customer[]),
