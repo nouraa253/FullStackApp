@@ -19,6 +19,15 @@
         owner: ubuntu
         group: ubuntu
         mode: '0644'
+
+    - name: Copy pv manifest to target server
+      copy:
+        src: "{{ repo_root }}/k8s/mysql-pv.yaml"
+        dest: /home/ubuntu/mysql-pv.yaml
+        owner: ubuntu
+        group: ubuntu
+        mode: '0644'
+        
     - name: Copy pvc manifest to target server
       copy:
         src: "{{ repo_root }}/k8s/mysql-pvc.yaml"
@@ -27,13 +36,7 @@
         group: ubuntu
         mode: '0644'
         
-    - name: Copy pv manifest to target server
-      copy:
-        src: "{{ repo_root }}/k8s/mysql-pv.yaml"
-        dest: /home/ubuntu/mysql-pv.yaml
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
+
     # ===== نسخ mysql (ثابت ما فيه متغيرات)
     - name: Copy mysql manifest to target server
       copy:
@@ -44,27 +47,27 @@
         mode: '0644'
 
     # ===== رندر ملفات backend/frontend (من .yaml مباشرة باستخدام template)
-    - name: Render backend manifest with injected image
-      template:
-        src: "{{ repo_root }}/k8s/backend-deployment.yaml"
-        dest: /home/ubuntu/backend-deployment.yaml
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
+#    - name: Render backend manifest with injected image
+#      template:
+#        src: "{{ repo_root }}/k8s/backend-deployment.yaml"
+#        dest: /home/ubuntu/backend-deployment.yaml
+#        owner: ubuntu
+#        group: ubuntu
+#        mode: '0644'
+#
+#    - name: Render frontend manifest with injected image
+#      template:
+#        src: "{{ repo_root }}/k8s/frontend-deployment.yaml"
+#        dest: /home/ubuntu/frontend-deployment.yaml
+#        owner: ubuntu
+#        group: ubuntu
+#        mode: '0644'
 
-    - name: Render frontend manifest with injected image
-      template:
-        src: "{{ repo_root }}/k8s/frontend-deployment.yaml"
-        dest: /home/ubuntu/frontend-deployment.yaml
-        owner: ubuntu
-        group: ubuntu
-        mode: '0644'
-
-    - name: Show rendered images (debug)
-      debug:
-        msg:
-          - "backend => {{ backend_image }}"
-          - "frontend => {{ frontend_image }}"
+#    - name: Show rendered images (debug)
+#      debug:
+#        msg:
+#          - "backend => {{ backend_image }}"
+#          - "frontend => {{ frontend_image }}"
 
     # ===== MySQL
     - name: Apply namespace
