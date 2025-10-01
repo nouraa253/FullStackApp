@@ -53,14 +53,14 @@ describe('AppComponent', () => {
 
   it('should render header "Customer List"', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
+    fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('h2')?.textContent).toContain('Customer List');
   });
 
   it('should render the "Add Customer" form', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
+    fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('input[placeholder="Name"]')).toBeTruthy();
     expect(el.querySelector('input[placeholder="Email"]')).toBeTruthy();
