@@ -1,42 +1,31 @@
-<!-- Navbar -->
-<mat-toolbar color="primary" class="navbar">
+<!-- Navbar (تم استبدال Angular Material بـ HTML عادي) -->
+<div class="navbar">
   <span>Customer Dashboard</span>
-  <span class="spacer"></span>
-  <button mat-icon-button (click)="toggleDarkMode()">
-    <mat-icon>{{ darkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
-  </button>
-</mat-toolbar>
+  <button (click)="toggleDarkMode()">{{ darkMode ? 'Light Mode' : 'Dark Mode' }}</button>
+</div>
 
 <div class="container">
-  <h1 class="title">Customer Management</h1>
+  <h2>Customer List</h2>
 
-  <!-- Add Customer Form -->
+  <!-- Add Customer Form (استبدال Angular Material بـ HTML عادي) -->
   <div class="add-customer">
-    <mat-form-field appearance="fill">
-      <mat-label>Name</mat-label>
-      <input matInput [(ngModel)]="newCustomer.name">
-    </mat-form-field>
+    <label for="name">Name</label>
+    <input id="name" [(ngModel)]="newCustomer.name" placeholder="Enter name">
 
-    <mat-form-field appearance="fill">
-      <mat-label>Email</mat-label>
-      <input matInput [(ngModel)]="newCustomer.email">
-    </mat-form-field>
+    <label for="email">Email</label>
+    <input id="email" [(ngModel)]="newCustomer.email" placeholder="Enter email">
 
-    <button mat-raised-button color="accent" (click)="addCustomer()">Add Customer</button>
+    <button (click)="addCustomer()">Add Customer</button>
   </div>
 
   <!-- Customer Cards -->
   <div class="customer-list">
-    <mat-card class="customer-card" *ngFor="let customer of customers" [ngClass]="{'dark-card': darkMode}">
-      <mat-card-header>
-        <mat-card-title>{{ customer.name }}</mat-card-title>
-        <mat-card-subtitle>{{ customer.email }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-actions>
-        <button mat-icon-button color="warn" (click)="deleteCustomer(customer.id)">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </mat-card-actions>
-    </mat-card>
+    <div *ngFor="let customer of customers">
+      <div class="customer-card">
+        <h3>{{ customer.name }}</h3>
+        <p>{{ customer.email }}</p>
+        <button (click)="deleteCustomer(customer.id)">Delete</button>
+      </div>
+    </div>
   </div>
 </div>
