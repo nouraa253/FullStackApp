@@ -29,7 +29,7 @@ spec:
       volumes:
         - name: data-volume
           persistentVolumeClaim:
-            claimName: m-pvc
+            claimName: mpvc
 ---
 apiVersion: v1
 kind: Service
