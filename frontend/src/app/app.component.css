@@ -88,6 +88,7 @@ input[type="email"]:focus {
   font-size: 1.2rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+    margin-top: 10px; 
 }
 
 .add-customer-btn:hover {
@@ -143,3 +144,4 @@ input[type="email"]:focus {
 .delete-btn:hover {
   background-color: #ff4e4e;
 }
+
