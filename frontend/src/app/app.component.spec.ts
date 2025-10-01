@@ -5,15 +5,6 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { CustomerService, Customer } from './customer.service';
 import { of } from 'rxjs';
 
-// Import Material Modules
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';  // استيراد الأنيميشن
-
 describe('AppComponent', () => {
   const customerServiceMock = {
     getCustomers: () => of([] as Customer[]),
@@ -24,17 +15,7 @@ describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [AppComponent],
-      imports: [
-        FormsModule,
-        HttpClientTestingModule,
-        MatToolbarModule,
-        MatButtonModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatCardModule,
-        BrowserAnimationsModule // استيراد الأنيميشن في TestBed
-      ],
+      imports: [FormsModule, HttpClientTestingModule],
       providers: [{ provide: CustomerService, useValue: customerServiceMock }]
     }).compileComponents();
   });
@@ -56,15 +37,15 @@ describe('AppComponent', () => {
     fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
     const el: HTMLElement = fixture.nativeElement;
     const header = el.querySelector('h2');
-    expect(header?.textContent).toContain('Customer List');  // تحقق من النص في العنصر
+    expect(header?.textContent).toContain('Customer List');
   });
 
   it('should render the "Add Customer" form', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector('input[placeholder="Name"]')).toBeTruthy();
-    expect(el.querySelector('input[placeholder="Email"]')).toBeTruthy();
+    expect(el.querySelector('input[placeholder="Enter name"]')).toBeTruthy();
+    expect(el.querySelector('input[placeholder="Enter email"]')).toBeTruthy();
     expect(el.querySelector('button')).toBeTruthy();
   });
 });
