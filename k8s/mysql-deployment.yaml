@@ -29,7 +29,7 @@ spec:
       volumes:
         - name: data-volume
           persistentVolumeClaim:
-            claimName: pvc-mysql
+            claimName: mysql-pvc
 ---
 apiVersion: v1
 kind: Service
