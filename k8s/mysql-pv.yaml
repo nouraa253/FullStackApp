@@ -3,9 +3,8 @@ kind: PersistentVolume
 metadata:
   name: my-pv
 spec:
+  accessModes: ["ReadWriteOnce"]
   capacity:
     storage: 1Gi  
-  accessModes:
-    - ReadWriteOnce  
   hostPath:
     path: /tmp/data
