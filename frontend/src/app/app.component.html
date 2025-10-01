@@ -1,11 +1,42 @@
-<h2>Customer List</h2>
-<input [(ngModel)]="newCustomer.name" placeholder="Name">
-<input [(ngModel)]="newCustomer.email" placeholder="Email">
-<button (click)="addCustomer()">Add</button>
+<!-- Navbar -->
+<mat-toolbar color="primary" class="navbar">
+  <span>🌟 Customer Dashboard</span>
+  <span class="spacer"></span>
+  <button mat-icon-button (click)="toggleDarkMode()">
+    <mat-icon>{{ darkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+  </button>
+</mat-toolbar>
 
-<ul>
-  <li *ngFor="let customer of customers">
-    {{ customer.name }} - {{ customer.email }}
-    <button (click)="deleteCustomer(customer.id)">Delete</button>
-  </li>
-</ul>
+<div class="container">
+  <h1 class="title">Customer Management</h1>
+
+  <!-- Add Customer Form -->
+  <div class="add-customer">
+    <mat-form-field appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput [(ngModel)]="newCustomer.name">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput [(ngModel)]="newCustomer.email">
+    </mat-form-field>
+
+    <button mat-raised-button color="accent" (click)="addCustomer()">Add Customer</button>
+  </div>
+
+  <!-- Customer Cards -->
+  <div class="customer-list">
+    <mat-card class="customer-card" *ngFor="let customer of customers" [ngClass]="{'dark-card': darkMode}">
+      <mat-card-header>
+        <mat-card-title>{{ customer.name }}</mat-card-title>
+        <mat-card-subtitle>{{ customer.email }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-actions>
+        <button mat-icon-button color="warn" (click)="deleteCustomer(customer.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+</div>
