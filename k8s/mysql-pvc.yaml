@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name:  MySQL-pvc
   namespace: fullstack
 spec:
   accessModes:
@@ -9,4 +9,3 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  volumeName: pv-mysql  # ربط الـ PVC بـ PV مباشرة
