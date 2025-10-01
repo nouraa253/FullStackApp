@@ -1,17 +1,4 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
-import { FormsModule } from '@angular/forms';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { CustomerService, Customer } from './customer.service';
-import { of } from 'rxjs';
-
-// Import Material Modules
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatCardModule } from '@angular/material/card';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('AppComponent', () => {
   const customerServiceMock = {
@@ -31,7 +18,8 @@ describe('AppComponent', () => {
         MatIconModule,
         MatFormFieldModule,
         MatInputModule,
-        MatCardModule
+        MatCardModule,
+        BrowserAnimationsModule  // تأكد من استيراده في الاختبارات أيضًا
       ],
       providers: [{ provide: CustomerService, useValue: customerServiceMock }]
     }).compileComponents();
