@@ -55,7 +55,8 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
     const el: HTMLElement = fixture.nativeElement;
-    expect(el.querySelector('h2')?.textContent).toContain('Customer List');
+    const header = el.querySelector('h2');
+    expect(header?.textContent).toContain('Customer List');  // تحقق من النص في العنصر
   });
 
   it('should render the "Add Customer" form', () => {
