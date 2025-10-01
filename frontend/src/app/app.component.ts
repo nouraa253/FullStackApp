@@ -8,8 +8,7 @@ import { Customer, CustomerService } from './customer.service';
 })
 export class AppComponent {
   title = 'frontend';
-  darkMode = false;
-
+  darkMode = false;  // الوضع الداكن
   customers: Customer[] = [];
   newCustomer: Customer = { name: '', email: '' };
 
@@ -24,7 +23,7 @@ export class AppComponent {
   }
 
   addCustomer(): void {
-    if(!this.newCustomer.name || !this.newCustomer.email) return;
+    if (!this.newCustomer.name || !this.newCustomer.email) return;
     this.customerService.addCustomer(this.newCustomer).subscribe(() => {
       this.loadCustomers();
       this.newCustomer = { name: '', email: '' };
