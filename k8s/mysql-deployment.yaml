@@ -24,12 +24,12 @@ spec:
             - name: MYSQL_DATABASE
               value: mydb
           volumeMounts:
-            - name: data-volume    
-              mountPath: /data 
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
       volumes:
-        - name: data-volume
+        - name: mysql-storage
           persistentVolumeClaim:
-            claimName: mpvc
+            claimName: mysqlpvc
 ---
 apiVersion: v1
 kind: Service
