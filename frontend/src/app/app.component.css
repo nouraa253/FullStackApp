@@ -1,0 +1,90 @@
+/* Navbar */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  font-size: 1.2em;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Container */
+.container {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Title */
+.title {
+  text-align: center;
+  font-size: 2.8em;
+  margin-bottom: 30px;
+  color: #3f51b5;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Add Customer Form */
+.add-customer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 50px;
+}
+
+mat-form-field {
+  width: 250px;
+}
+
+/* Customer List */
+.customer-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* Card Styling */
+.customer-card {
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.customer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 25px rgba(0,0,0,0.3);
+}
+
+mat-card-title {
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+mat-card-subtitle {
+  font-style: italic;
+  color: #555;
+}
+
+/* Dark Mode */
+.dark-card {
+  background: linear-gradient(135deg, #2c3e50, #34495e);
+  color: #ecf0f1;
+}
+
+body.dark-mode {
+  background-color: #1e1e2f;
+  color: #ecf0f1;
+}
+
+/* Button Hover Effects */
+button[mat-raised-button] {
+  transition: background 0.3s, transform 0.3s;
+}
+
+button[mat-raised-button]:hover {
+  transform: scale(1.05);
+}
