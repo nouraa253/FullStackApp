@@ -24,12 +24,12 @@ spec:
             - name: MYSQL_DATABASE
               value: mydb
           volumeMounts:
-            - name: data-volume     # Name of the volume to mount in the container
+            - name: data-volume    
               mountPath: /data 
       volumes:
         - name: data-volume
           persistentVolumeClaim:
-            claimName: my-pvc
+            claimName: pvc-mysql
 ---
 apiVersion: v1
 kind: Service
