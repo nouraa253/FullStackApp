@@ -1,9 +1,6 @@
 <!-- Navbar -->
 <div class="navbar">
   <span class="navbar-brand">Customer Dashboard</span>
-  <button class="mode-toggle-btn" (click)="toggleDarkMode()">
-    {{ darkMode ? 'Light Mode' : 'Dark Mode' }}
-  </button>
 </div>
 
 <!-- Main Container -->
@@ -13,10 +10,10 @@
   <!-- Add Customer Form -->
   <div class="add-customer">
     <div class="form-container">
-      <label for="name">Name</label>
+      <label for="name">Customer's Name</label>
       <input id="name" [(ngModel)]="newCustomer.name" placeholder="Enter name">
 
-      <label for="email">Email</label>
+      <label for="email">Customer's Email</label>
       <input id="email" [(ngModel)]="newCustomer.email" placeholder="Enter email">
 
       <button class="add-customer-btn" (click)="addCustomer()">Add Customer</button>
