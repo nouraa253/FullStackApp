@@ -25,7 +25,7 @@ h2.section-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #ffb6c1; /* Baby Pink */
+  background-color: #283593;
   padding: 15px 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -40,7 +40,7 @@ h2.section-title {
 .mode-toggle-btn {
   padding: 10px 20px;
   font-size: 1rem;
-  background-color: #ff1744; /* Red */
+  background-color: #ff4081;
   color: white;
   border: none;
   border-radius: 5px;
@@ -49,7 +49,7 @@ h2.section-title {
 }
 
 .mode-toggle-btn:hover {
-  background-color: #f50057; /* Darker Red */
+  background-color: #f50057;
 }
 
 /* Add Customer Form */
@@ -89,23 +89,25 @@ input[type="email"] {
 input[type="text"]:focus,
 input[type="email"]:focus {
   outline: none;
-  border-color: #ff1744; /* Red */
+  border-color: #283593;
 }
 
 .add-customer-btn {
   width: 100%;
   padding: 12px;
-  background-color: #ff1744; /* Red */
+  background-color: #283593;
   color: white;
   border: none;
   border-radius: 5px;
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 10px;  /* Add space between button and input fields */
+
 }
 
 .add-customer-btn:hover {
-  background-color: #d50032; /* Darker Red */
+  background-color: #1a237e;
 }
 
 /* Customer Cards */
@@ -132,8 +134,22 @@ input[type="email"]:focus {
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
 }
 
+.customer-avatar {
+  width: 50px;
+  height: 50px;
+  background-color: #ff1744;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
 .customer-card h3 {
-  color: #ff1744; /* Red */
+  color: #283593;
   font-size: 1.2rem;
   margin-bottom: 10px;
 }
@@ -146,7 +162,7 @@ input[type="email"]:focus {
 
 .delete-btn {
   padding: 8px 16px;
-  background-color: #ff1744; /* Red */
+  background-color: #ff4081;
   color: white;
   border: none;
   border-radius: 5px;
@@ -155,5 +171,6 @@ input[type="email"]:focus {
 }
 
 .delete-btn:hover {
-  background-color: #f50057; /* Darker Red */
+  background-color: #f50057;
 }
+
