@@ -49,11 +49,11 @@ pipeline {
         }
         stage('SonarQube Frontend Analysis') {
           steps {
-            withSonarQubeEnv('sonar-frontend') {
-            //    def scannerHome = tool 'sonar-scanner'
+            withSonarQubeEnv('SonarQube') {
+                def scannerHome = tool 'sonar-scanner'     def scannerHome = tool 'sonar-scanner'
                 dir('frontend') {
                   sh """
-                    sonar-scanner\
+                     ${scannerHome}/bin/sonar-scanner \
                       -Dsonar.projectKey=fullstack-frontend \
                       -Dsonar.sources=. \
                   """
