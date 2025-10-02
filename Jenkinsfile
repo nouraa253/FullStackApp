@@ -53,7 +53,7 @@ pipeline {
             //    def scannerHome = tool 'sonar-scanner'
                 dir('frontend') {
                   sh """
-           //         ${scannerHome}/bin/sonar-scanner \
+                    sonar-scanner\
                       -Dsonar.projectKey=fullstack-frontend \
                       -Dsonar.sources=. \
                   """
