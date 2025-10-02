@@ -50,18 +50,20 @@ pipeline {
         stage('SonarQube Frontend Analysis') {
           steps {
             withSonarQubeEnv('SonarQube') {
-                def scannerHome = tool 'sonar-scanner'     
-                dir('frontend') {
-                  sh """
-                     ${scannerHome}/bin/sonar-scanner \
-                      -Dsonar.projectKey=fullstack-frontend \
-                      -Dsonar.sources=. \
-                  """
+                script {
+                    def scannerHome = tool 'sonar-scanner'     
+                    dir('frontend') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                              -Dsonar.projectKey=fullstack-frontend \
+                              -Dsonar.sources=. \
+                              -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                        """
                 }
                 timeout(time: 15, unit: 'MINUTES') {
                   waitForQualityGate abortPipeline: true
                 }
-              
+              }
             }
           }
         }
