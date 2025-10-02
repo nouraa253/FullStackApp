@@ -1,23 +1,19 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { CustomerService } from './customer.service';
 
-import { AppComponent } from './app.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { CustomerComponent } from './customer/customer.component';
-import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http'; 
+describe('CustomerService', () => {
+  let service: CustomerService;
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    CustomerComponent
-  ],
-  imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    FormsModule,
-    HttpClientModule  ],
-  providers: [],
-  bootstrap: [AppComponent]
-})
-export class AppModule { }
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [CustomerService]
+    });
+    service = TestBed.inject(CustomerService);
+  });
+
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});
