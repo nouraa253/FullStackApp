@@ -17,7 +17,7 @@ h2.section-title {
   text-align: center;
   font-size: 2rem;
   color: #333;
-  margin-top: 40px;  /* Increased margin-top to add space between navbar and title */
+  margin-top: 60px;  /* Increased margin-top to add space between navbar and title */
   margin-bottom: 30px;
 }
 
@@ -27,7 +27,7 @@ h2.section-title {
   justify-content: space-between;
   align-items: center;
   background-color: #d10d34;  /* Changed to #d10d34 */
-  padding: 20px 30px;  /* Increased padding for wider navbar */
+  padding: 50px 60px;  /* Increased padding for wider navbar */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -81,7 +81,7 @@ input[type="text"],
 input[type="email"] {
   width: 100%;
   padding: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
@@ -103,6 +103,7 @@ input[type="email"]:focus {
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 25px;
 }
 
 .add-customer-btn:hover {
