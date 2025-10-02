@@ -8,7 +8,10 @@ export interface Customer {
   email: string;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
+
 export class CustomerService {
 
   private apiUrl = '/customers';
