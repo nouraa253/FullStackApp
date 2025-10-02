@@ -15,8 +15,9 @@ body {
 
 h2.section-title {
   text-align: center;
-  font-size: 2rem;
+  font-size: 3rem;
   color: #333;
+  font-weight: bold;
   margin-top: 40px;  /* Increased margin-top to add space between navbar and title */
   margin-bottom: 30px;
 }
@@ -27,14 +28,14 @@ h2.section-title {
   justify-content: space-between;
   align-items: center;
   background-color: #d10d34;  /* Changed to #d10d34 */
-  padding: 20px 30px;  /* Increased padding for wider navbar */
+  padding: 40px 50px;  /* Increased padding for wider navbar */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-brand {
   color: white;
-  font-size: 1.8rem;
+  font-size: 1.9rem;
   font-weight: bold;
 }
 
@@ -47,11 +48,11 @@ h2.section-title {
 }
 
 .form-container {
-  background-color: #fcdee4;  /* Changed to #fcdee4 */
-  padding: 25px;
+  background-color: #fae8ec;  /* Changed to #fcdee4 */
+  padding: 35px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
+  max-width: 600px;
   width: 100%;
   text-align: center;
 }
@@ -81,7 +82,7 @@ input[type="email"]:focus {
 
 .add-customer-btn {
   width: 100%;
-  padding: 12px;
+  padding: 17px;
   background-color: #d10d34;  /* Changed to #d10d34 */
   color: white;
   border: none;
@@ -89,6 +90,8 @@ input[type="email"]:focus {
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 25px;
+
 }
 
 .add-customer-btn:hover {
@@ -105,7 +108,7 @@ input[type="email"]:focus {
 }
 
 .customer-card {
-  background-color: #fcdee4;  /* Changed to #fcdee4 */
+  background-color: #fae8ec;  /* Changed to #fcdee4 */
   padding: 15px;
   width: 240px;
   text-align: center;
