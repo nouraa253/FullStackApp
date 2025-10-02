@@ -9,7 +9,7 @@
     backend_image: "docker.io/nouraa253/demo-backend:{{ build_number }}"
     frontend_image: "docker.io/nouraa253/demo-frontend:{{ build_number }}"
     kubeconfig_path: "/home/ubuntu/.kube/config"
-    repo_root: "{{ playbook_dir | dirname }}"  # يشير إلى جذر المشروع (اللي فيه مجلد k8s)
+    repo_root: "{{ playbook_dir | dirname }}"  
 
   tasks:
     - name: Copy namespace manifest to target server
@@ -37,7 +37,6 @@
         mode: '0644'
         
 
-    # ===== نسخ mysql (ثابت ما فيه متغيرات)
     - name: Copy mysql manifest to target server
       copy:
         src: "{{ repo_root }}/k8s/mysql-deployment.yaml"
@@ -46,7 +45,6 @@
         group: ubuntu
         mode: '0644'
 
-    # ===== رندر ملفات backend/frontend (من .yaml مباشرة باستخدام template)
     - name: Render backend manifest with injected image
       template:
         src: "{{ repo_root }}/k8s/backend-deployment.yaml"
@@ -93,7 +91,6 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-    # ===== Backend
     - name: Check if deployment exists (backend)
       command: kubectl get deployment demo-backend
       register: be_check
@@ -113,7 +110,6 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-    # ===== Frontend
     - name: Check if deployment exists (frontend)
       command: kubectl get deployment demo-frontend
       register: fe_check
@@ -133,7 +129,6 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-        # ===== Ingress
     - name: Copy ingress manifest to target server
       copy:
         src: "{{ repo_root }}/k8s/ingress-backend.yaml"
