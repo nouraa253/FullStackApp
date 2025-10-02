@@ -1,41 +1,8 @@
 <!-- Navbar -->
 <div class="navbar">
-  <span class="navbar-brand">Customer Dashboard</span>
-</div>
-
-<!-- Main Container -->
-<div class="container">
-  <h2 class="section-title">Customer List</h2>
-
-  <!-- Add Customer Form -->
-  <div class="add-customer">
-    <div class="form-container">
-      <label for="name">Name</label>
-      <input id="name" [(ngModel)]="newCustomer.name" placeholder="Enter name">
-
-      <label for="email">Email</label>
-      <input id="email" [(ngModel)]="newCustomer.email" placeholder="Enter email">
-
-      <button class="add-customer-btn" (click)="addCustomer()">Add Customer</button>
-    </div>
-  </div>
-
-  <!-- Customer Cards -->
-  <div class="customer-list">
-    <div *ngFor="let customer of customers">
-      <div class="customer-card">
-        <h3>{{ customer.name }}</h3>
-        <p>{{ customer.email }}</p>
-        <button class="delete-btn" (click)="deleteCustomer(customer.id)">Delete</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Navbar -->
-<div class="navbar">
   <div class="navbar-content">
-  <span class="navbar-brand">Customer Dashboard</span>
+    <span class="navbar-brand">Customer Dashbord</span>
+
   </div>
 </div>
 
@@ -46,11 +13,11 @@
   <!-- Add Customer Form -->
   <div class="form-container">
     <div class="form">
-      <label for="name">Customer Name</label>
-      <input id="name" [(ngModel)]="newCustomer.name" placeholder="Enter client's name">
+      <label for="name">Customer's Name</label>
+      <input id="name" [(ngModel)]="newCustomer.name" placeholder="Enter Customer's name">
 
-      <label for="email">Customer Email</label>
-      <input id="email" [(ngModel)]="newCustomer.email" placeholder="Enter client's email">
+      <label for="email">Customer's Email</label>
+      <input id="email" [(ngModel)]="newCustomer.email" placeholder="Enter Customer's email">
 
       <button class="submit-btn" (click)="addCustomer()">Add Customer</button>
     </div>
@@ -58,7 +25,7 @@
 
   <!-- Customer Cards -->
   <div class="cards-wrapper">
-    <div *ngFor="let customer of customers" class="customer-card">
+    <div *ngFor="let customer of customers" class="custom-card">
       <div class="card-header">
         <h3>{{ customer.name }}</h3>
         <p>{{ customer.email }}</p>
@@ -69,3 +36,4 @@
     </div>
   </div>
 </div>
+
