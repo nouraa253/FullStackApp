@@ -34,7 +34,7 @@ describe('AppComponent', () => {
 
   it('should render header "Customer List"', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
+    fixture.detectChanges(); 
     const el: HTMLElement = fixture.nativeElement;
     const header = el.querySelector('h2');
     expect(header?.textContent).toContain('Customer List');
@@ -42,7 +42,7 @@ describe('AppComponent', () => {
 
   it('should render the "Add Customer" form', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges(); // تأكد من تحديث الـ DOM قبل التحقق
+    fixture.detectChanges(); 
     const el: HTMLElement = fixture.nativeElement;
     expect(el.querySelector('input[placeholder="Enter name"]')).toBeTruthy();
     expect(el.querySelector('input[placeholder="Enter email"]')).toBeTruthy();
