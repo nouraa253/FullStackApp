@@ -49,7 +49,7 @@ pipeline {
         }
         stage('SonarQube Frontend Analysis') {
           steps {
-            withSonarQubeEnv('SonarQube') {
+            withSonarQubeEnv('sonar-frontend') {
                 script {
                     def scannerHome = tool 'sonar-scanner'     
                     dir('frontend') {
