@@ -36,20 +36,7 @@ h2.section-title {
   font-weight: bold;
 }
 
-.mode-toggle-btn {
-  padding: 10px 20px;
-  font-size: 1rem;
-  background-color: #ff4081;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
 
-.mode-toggle-btn:hover {
-  background-color: #f50057;
-}
 
 /* Add Customer Form */
 .add-customer {
@@ -156,3 +143,4 @@ input[type="email"]:focus {
 .delete-btn:hover {
   background-color: #f50057;
 }
+
