@@ -5,7 +5,7 @@ pipeline {
     DOCKER_REGISTRY = "nouraa253"
     BACKEND_IMAGE   = "nouraa253/demo-backend:${BUILD_NUMBER}"
     FRONTEND_IMAGE  = "nouraa253/demo-frontend:${BUILD_NUMBER}"
-    NEXUS_URL       = '18.199.159.36:8081'
+    NEXUS_URL       = '3.72.6.88:8081'
     NEXUS_BACKEND   = 'backend'
     NEXUS_FRONTEND  = 'frontend'
   }
